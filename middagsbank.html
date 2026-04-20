@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Middagsbanken</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --warm: #E8DFD0;
+    --ink: #1C1A17;
+    --muted: #7A7060;
+    --kjøtt: #8B3A3A;
+    --kylling: #C4703A;
+    --fisk: #3A6E8B;
+    --card-bg: #FDFAF5;
+    --green: #3A7A4A;
+    --green-bg: #E2F0E5;
+    --shadow: 0 2px 16px rgba(28,26,23,0.09);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+    overflow-x: hidden;
+    padding-bottom: 100px;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.7;
+  }
+
+  /* ── NAV TABS ── */
+  .nav-tabs {
+    display: flex; position: sticky; top: 0; z-index: 40;
+    background: var(--cream); border-bottom: 1.5px solid var(--warm);
+    padding: 0 20px;
+  }
+  .nav-tab {
+    flex: 1; padding: 14px 0; font-size: 14px; font-weight: 600;
+    text-align: center; border: none; background: none; cursor: pointer;
+    color: var(--muted); border-bottom: 2.5px solid transparent;
+    margin-bottom: -1.5px; transition: color 0.18s, border-color 0.18s;
+    font-family: 'DM Sans', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .nav-tab.active { color: var(--ink); border-bottom-color: var(--ink); }
+  .nav-tab .tab-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--kylling); color: white;
+    width: 18px; height: 18px; border-radius: 50%;
+    font-size: 10px; font-weight: 700; margin-left: 5px;
+    vertical-align: middle;
+  }
+
+  /* ── PAGE VIEWS ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── HEADER ── */
+  header {
+    padding: 40px 22px 14px;
+    position: relative; z-index: 1;
+  }
+  .logo-line {
+    font-size: 11px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 34px; font-weight: 700; line-height: 1.1; color: var(--ink);
+  }
+  h1 span { color: var(--kylling); }
+
+  /* ── SEARCH ── */
+  .search-wrap { padding: 8px 20px 4px; position: relative; z-index: 1; }
+  .search-icon { position: absolute; left: 34px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; pointer-events: none; }
+  .search-input {
+    width: 100%; padding: 11px 14px 11px 38px;
+    border-radius: 13px; border: 1.5px solid var(--warm);
+    background: var(--card-bg); font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: var(--ink); outline: none; transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--kylling); }
+
+  /* ── FILTER ROWS ── */
+  .scroll-row {
+    display: flex; gap: 7px; padding: 8px 20px 4px;
+    overflow-x: auto; scrollbar-width: none;
+    position: relative; z-index: 1; -webkit-overflow-scrolling: touch;
+  }
+  .scroll-row::-webkit-scrollbar { display: none; }
+  .pill {
+    display: flex; align-items: center; gap: 5px;
+    padding: 8px 16px; border-radius: 100px;
+    border: 1.5px solid var(--warm); font-size: 13px; font-weight: 500;
+    cursor: pointer; white-space: nowrap; background: var(--card-bg);
+    color: var(--muted); transition: all 0.18s; flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pill.active-alle    { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+  .pill.active-Kjøtt   { background: var(--kjøtt); color: #fff; border-color: var(--kjøtt); }
+  .pill.active-Kylling { background: var(--kylling); color: #fff; border-color: var(--kylling); }
+  .pill.active-Fisk    { background: var(--fisk); color: #fff; border-color: var(--fisk); }
+  .pill.active-kat     { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+  .count-bar { padding: 2px 20px 8px; font-size: 12px; color: var(--muted); position: relative; z-index: 1; }
+
+  /* ── RECIPE CARDS ── */
+  .grid { padding: 0 13px; position: relative; z-index: 1; }
+  .recipe-card {
+    background: var(--card-bg); border-radius: 17px;
+    padding: 14px 16px; margin-bottom: 9px;
+    box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer; transition: transform 0.16s, box-shadow 0.16s;
+    -webkit-tap-highlight-color: transparent;
+    animation: fadeUp 0.26s ease both;
+    position: relative; border: 2px solid transparent;
+  }
+  .recipe-card:active { transform: scale(0.985); }
+  .recipe-card.selected { border-color: var(--green); background: #F5FBF6; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .card-check {
+    position: absolute; top: 10px; right: 12px;
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--warm); background: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; transition: all 0.18s; cursor: pointer; z-index: 2;
+    color: white;
+  }
+  .recipe-card.selected .card-check { background: var(--green); border-color: var(--green); }
+  .card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .icon-Kjøtt   { background: #F5DADA; }
+  .icon-Kylling { background: #FBE9DF; }
+  .icon-Fisk    { background: #D9ECF5; }
+  .card-content { flex: 1; min-width: 0; padding-right: 28px; }
+  .card-name { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .cat-chip { padding: 2px 8px; border-radius: 100px; font-size: 11px; font-weight: 500; }
+  .chip-Kjøtt   { background: #F5DADA; color: var(--kjøtt); }
+  .chip-Kylling { background: #FBE9DF; color: var(--kylling); }
+  .chip-Fisk    { background: #D9ECF5; color: var(--fisk); }
+  .card-time { font-size: 11px; color: var(--muted); }
+
+  /* ── FLOATING BAR ── */
+  .cart-bar {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: var(--cream);
+    border-radius: 100px; padding: 13px 22px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 8px 28px rgba(28,26,23,0.35);
+    z-index: 50; transition: all 0.28s cubic-bezier(.34,1.56,.64,1);
+    opacity: 0; pointer-events: none; white-space: nowrap;
+    max-width: calc(100% - 28px);
+  }
+  .cart-bar.visible { opacity: 1; pointer-events: all; }
+  .cart-count { background: var(--kylling); color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .cart-label { font-size: 14px; font-weight: 500; flex: 1; }
+  .cart-btn { background: var(--kylling); color: white; border: none; border-radius: 100px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+  /* ── RECIPE DETAIL OVERLAY ── */
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(28,26,23,0.5); backdrop-filter: blur(5px); z-index: 100; align-items: flex-end; }
+  .overlay.open { display: flex; }
+  .sheet { background: var(--card-bg); border-radius: 26px 26px 0 0; padding: 26px 24px 50px; width: 100%; animation: fadeUp 0.28s ease; max-height: 88vh; overflow-y: auto; position: relative; }
+  .sheet-handle { width: 36px; height: 4px; background: var(--warm); border-radius: 2px; margin: 0 auto 22px; }
+  .close-btn { position: absolute; top: 16px; right: 20px; width: 32px; height: 32px; border-radius: 50%; background: var(--warm); border: none; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
+  .modal-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 500; margin-bottom: 12px; }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--ink); margin-bottom: 8px; line-height: 1.25; }
+  .modal-sec { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin: 16px 0 7px; font-weight: 600; }
+  .ingr-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .ingr-list li { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4A4540; }
+  .dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .dot-Kjøtt { background: var(--kjøtt); } .dot-Kylling { background: var(--kylling); } .dot-Fisk { background: var(--fisk); }
+  .step-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .step-item { display: flex; gap: 10px; font-size: 13px; color: #4A4540; line-height: 1.55; }
+  .step-num { min-width: 21px; height: 21px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; flex-shrink: 0; margin-top: 1px; }
+  .num-Kjøtt { background: var(--kjøtt); } .num-Kylling { background: var(--kylling); } .num-Fisk { background: var(--fisk); }
+  .tip-box { background: var(--warm); border-radius: 11px; padding: 11px 13px; font-size: 13px; color: #4A4540; line-height: 1.5; }
+  .link-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; padding: 10px 18px; border-radius: 12px; background: var(--ink); color: var(--cream); text-decoration: none; font-size: 13px; font-weight: 500; }
+  .modal-meta-row { display: flex; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+  .meta-item { font-size: 12px; color: var(--muted); }
+  .add-to-list-btn { display: flex; align-items: center; gap: 8px; width: 100%; padding: 13px 18px; margin-top: 16px; border-radius: 14px; border: 2px solid var(--green); background: var(--green-bg); color: var(--green); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.18s; -webkit-tap-highlight-color: transparent; }
+  .add-to-list-btn.added { background: var(--green); color: white; }
+
+  /* ── SHOPPING LIST PAGE ── */
+  .shop-header { padding: 40px 22px 16px; position: relative; z-index: 1; }
+  .shop-h1 { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 700; color: var(--ink); }
+  .shop-h1 span { color: var(--green); }
+  .shop-meta { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  .empty-shop { text-align: center; padding: 60px 32px; color: var(--muted); }
+  .empty-shop .e-icon { font-size: 48px; margin-bottom: 14px; }
+  .empty-shop h3 { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--ink); margin-bottom: 8px; }
+  .empty-shop p { font-size: 14px; line-height: 1.5; }
+  .empty-shop .go-btn { display: inline-block; margin-top: 18px; padding: 12px 24px; background: var(--ink); color: var(--cream); border-radius: 100px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; }
+
+  .selected-dishes { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 20px 14px; }
+  .dish-chip { padding: 5px 12px; border-radius: 100px; font-size: 12px; font-weight: 500; background: var(--warm); color: var(--ink); display: flex; align-items: center; gap: 5px; }
+  .dish-chip-x { cursor: pointer; opacity: 0.5; font-size: 14px; line-height: 1; }
+  .dish-chip-x:hover { opacity: 1; }
+
+  /* Manual add row */
+  .manual-add-wrap { padding: 0 20px 8px; display: flex; gap: 8px; }
+  .manual-input {
+    flex: 1; padding: 10px 14px; border-radius: 11px;
+    border: 1.5px solid var(--warm); background: var(--card-bg);
+    font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink); outline: none;
+    transition: border-color 0.2s;
+  }
+  .manual-input:focus { border-color: var(--green); }
+  .manual-add-btn {
+    padding: 10px 16px; border-radius: 11px; border: none;
+    background: var(--green); color: white;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; white-space: nowrap; flex-shrink: 0;
+  }
+
+  /* Section titles */
+  .sl-section-title {
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin: 14px 0 6px;
+    padding: 0 20px; display: flex; align-items: center; gap: 8px;
+  }
+  .sl-section-title::after { content: ''; flex: 1; height: 1px; background: var(--warm); }
+
+  /* Shopping items */
+  .sl-list { list-style: none; padding: 0 13px; display: flex; flex-direction: column; gap: 6px; }
+  .sl-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; background: var(--card-bg); border-radius: 13px;
+    box-shadow: var(--shadow); cursor: pointer;
+    transition: all 0.22s ease; -webkit-tap-highlight-color: transparent;
+    position: relative; overflow: hidden;
+  }
+  .sl-item.checked { background: #F0F0ED; }
+  .sl-checkbox {
+    width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+    border: 2px solid var(--warm); background: white;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; font-size: 13px; color: white;
+  }
+  .sl-item.checked .sl-checkbox { background: var(--green); border-color: var(--green); }
+  .sl-text {
+    flex: 1; font-size: 14px; color: var(--ink);
+    transition: all 0.22s;
+  }
+  .sl-item.checked .sl-text { text-decoration: line-through; color: var(--muted); }
+  .sl-delete {
+    opacity: 0; font-size: 18px; color: var(--muted); cursor: pointer;
+    padding: 2px 4px; transition: opacity 0.18s; flex-shrink: 0;
+  }
+  .sl-item:hover .sl-delete { opacity: 0.4; }
+  .sl-delete:hover { opacity: 1 !important; color: var(--kjøtt); }
+
+  /* Done section */
+  .done-section-wrap { margin-top: 4px; }
+  .done-header {
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; padding: 12px 20px 6px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .done-header::after { content: ''; flex: 1; height: 1px; background: var(--warm); }
+
+  /* Bottom actions */
+  .shop-actions { padding: 20px 20px 10px; display: flex; flex-direction: column; gap: 8px; }
+  .action-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 13px; border-radius: 13px; border: none;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; -webkit-tap-highlight-color: transparent; transition: opacity 0.18s;
+  }
+  .action-btn:active { opacity: 0.8; }
+  .btn-copy-all { background: var(--ink); color: var(--cream); }
+  .btn-reset-done { background: var(--warm); color: var(--ink); }
+  .btn-clear-all { background: transparent; color: var(--muted); border: 1.5px solid #DDD5C5; font-size: 13px; padding: 11px; }
+
+  /* ── EMPTY ── */
+  .empty { text-align: center; padding: 56px 24px; color: var(--muted); }
+  .empty-icon { font-size: 40px; margin-bottom: 10px; }
+  .empty h3 { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--ink); margin-bottom: 6px; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: var(--cream); padding: 10px 20px;
+    border-radius: 100px; font-size: 13px; font-weight: 500;
+    opacity: 0; transition: all 0.3s; z-index: 300; white-space: nowrap;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav-tabs">
+  <button class="nav-tab active" id="tabRetter" onclick="switchTab('retter')">🍽 Retter</button>
+  <button class="nav-tab" id="tabHandle" onclick="switchTab('handle')">🛒 Handleliste <span class="tab-badge" id="shopBadge" style="display:none">0</span></button>
+</div>
+
+<!-- ═══ RETTER PAGE ═══ -->
+<div class="page active" id="pageRetter">
+  <header>
+    <div class="logo-line">Din matplan</div>
+    <h1>Middags<span>banken</span></h1>
+  </header>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="searchInput" type="text" placeholder="Søk etter rett, ingrediens...">
+  </div>
+  <div class="scroll-row" id="proteinRow">
+    <button class="pill active-alle" data-protein="alle">🍽 Alle</button>
+    <button class="pill" data-protein="Kjøtt">🥩 Kjøtt</button>
+    <button class="pill" data-protein="Kylling">🍗 Kylling</button>
+    <button class="pill" data-protein="Fisk">🐟 Fisk</button>
+  </div>
+  <div class="scroll-row" id="catRow"></div>
+  <div class="count-bar" id="countBar"></div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- ═══ HANDLELISTE PAGE ═══ -->
+<div class="page" id="pageHandle">
+  <div class="shop-header">
+    <div class="shop-h1">Handle<span>liste</span></div>
+    <div class="shop-meta" id="shopMeta"></div>
+  </div>
+  <div id="shopEmpty" class="empty-shop" style="display:none">
+    <div class="e-icon">🛒</div>
+    <h3>Handlelista er tom</h3>
+    <p>Gå til Retter-fana og marker retter du vil handle til. Ingrediensane hamnar automatisk her.</p>
+    <button class="go-btn" onclick="switchTab('retter')">→ Sjå retter</button>
+  </div>
+  <div id="shopContent">
+    <div class="selected-dishes" id="selectedDishes"></div>
+    <div class="manual-add-wrap">
+      <input class="manual-input" id="manualInput" type="text" placeholder="Legg til vare manuelt...">
+      <button class="manual-add-btn" id="manualAddBtn">+ Legg til</button>
+    </div>
+    <div id="shopListContent"></div>
+    <div class="done-section-wrap" id="doneSectionWrap" style="display:none">
+      <div class="done-header">Haket av</div>
+      <ul class="sl-list" id="doneList"></ul>
+    </div>
+    <div class="shop-actions">
+      <button class="action-btn btn-copy-all" id="btnCopyAll">📋 Kopier heile lista</button>
+      <button class="action-btn btn-reset-done" id="btnResetDone">↩ Nullstill avhukingar</button>
+      <button class="action-btn btn-clear-all" id="btnClearAll">🗑 Fjern alle valgte retter</button>
+    </div>
+  </div>
+</div>
+
+<!-- floating cart bar (only on retter page) -->
+<div class="cart-bar" id="cartBar">
+  <div class="cart-count" id="cartCount">0</div>
+  <span class="cart-label" id="cartLabel">retter valgt</span>
+  <button class="cart-btn" onclick="switchTab('handle')">Sjå handleliste →</button>
+</div>
+
+<!-- recipe detail overlay -->
+<div class="overlay" id="recipeOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <button class="close-btn" id="closeRecipe">✕</button>
+    <div id="recipeContent"></div>
+  </div>
+</div>
+
+<!-- toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════
+const retter = [
+  {id:"R100",navn:"One pot pasta med Salsiccia",protein:"Kjøtt",kategori:"Pasta",tid:30,ingredienser:["300 g Salsiccia","250 g sjampinjong","350 g pasta","8 dl kjøttkraft","350 g cherrytomater","1 håndfull basilikum","Parmesan"],fremgang:"Steik kjøttboller; Tilsett sopp og fres; Ha i pasta, kraft, tomater, salt og pepper; Kok opp og tilsett basilikum; Server med parmesan",link:"https://www.godt.no/oppskrifter/pasta/7294/one-pot-pasta-med-salsiccia"},
+  {id:"R200",navn:"Sundagskylling",protein:"Kylling",kategori:"Tradisjonell",tid:45,ingredienser:["Kyllinglår","Potet","Søtpotet","Gulrot","Raud lauk","Salt, pepper, aromat, kyllingkrydder"],fremgang:"Sett steikeomn på 200 °C varmluft; Hakk opp grønnsaker i medium bitar og miks med olje og krydder; Steik ca. 45 min; Legg kylling i form, massér inn krydder og olje; Steik ca. 30 min",notater:"Kan også lages med kalkun"},
+  {id:"R101",navn:"Tortillini og pølse",protein:"Kjøtt",kategori:"Tradisjonell",tid:20,ingredienser:["Pølse","Blader","Tortillini","Salatost","Tomat","Aioli","Rundstykker"],fremgang:"Steik grønnsaker; Hakk grønnsaker og miks; Steik pølser; Kok tortillini; Servér med aioli"},
+  {id:"R300",navn:"Laks med eksotiske frukter",protein:"Fisk",kategori:"Tradisjonell",tid:30,ingredienser:["Laks","Avokado","Mango","Lime","Cherrytomater","Raud lauk","Vårlauk","Paprika","Sweet Chilli","Ris"],fremgang:"Kutt grønnsaker i ein bolle og press over lime; Salt og pepper på laks og steik på 200 °C i 12–15 min; Kok ris",link:"https://trinesmatblogg.no/recipe/laks-med-mango-og-avokadosalat/"},
+  {id:"R201",navn:"Ruths kyllinggryte",protein:"Kylling",kategori:"Gryte",tid:30,ingredienser:["Kyllingfillet","Soltørka tomater","Sjampinjong","Grønn paprika","Matfløyte","Kvitlauksfedd","Tagliatelle","Soyasaus","Ev. maizena"],fremgang:"Steik kylling; Tilsett grønnsaker og fres; Hell i fløyte og soyasaus; La småkoke; Kok tagliatelle og servér"},
+  {id:"R301",navn:"Laks og nudler med soya",protein:"Fisk",kategori:"Tradisjonell",tid:30,ingredienser:["Laks","Nudler","Paprika","Rødløk","Kvitlauk","Purreløk","Soyasaus","Honning"],fremgang:"Hakk opp grønnsaker og steik dei; Steik laks; Kok nudler; Miks kvitlauk, purrelauk, olje, soyasaus og honning til saus"},
+  {id:"R102",navn:"Enkle greske kjøttboller",protein:"Kjøtt",kategori:"Gresk",tid:20,ingredienser:["Kjøttboller","Blader","Cherrytomat","Rødløk","Tzatziki","Pita"],fremgang:"Steik kjøttboller; Tilbred salat; Servér med pita"},
+  {id:"R302",navn:"Fiskeburger med potet",protein:"Fisk",kategori:"Hamburger",tid:30,ingredienser:["Fiskeburger","Potet","Rødløk","Tomat","Paprika","Blader","Hamburgerbrød","Aioli"],fremgang:"Steik potetbåtar; Steik fiskeburger; Del opp grønnsaker; Servér med burgerbrød"},
+  {id:"R202",navn:"Indisk kyllingsuppe",protein:"Kylling",kategori:"Suppe",tid:45,ingredienser:["Gul løk","Kvitløksfedd","Halv rød chilli","1 ss ingefær revet","1 eple grovt revet","2 ts karri","9 dl kyllingkraft","2 dl kokosmjølk/matfløyte","Kyllingfillet","Naan brød"],fremgang:"Fres lauk, chilli, ingefær, kvitlauk og eple; Tilsett kyllingkraft og kok opp i 10–15 min; Steik kylling; Tilsett kylling og kokosmjølk og gi det eit oppkok; Smak til"},
+  {id:"R103",navn:"Helgas kvite pizza",protein:"Kjøtt",kategori:"Pizza",tid:30,ingredienser:["Chilli","Kvitlauk","Rødløk","Sopp","Soltørka tomat","Artisjokk","Crème fraîche","Pizzabotn","Siliana"],fremgang:"Hakk kvitlauk og chilli og bland med crème fraîche, basilikum, salt og pepper; Smør utover botn; Ha på ønskt innhald; Steik på 220 °C i 10–15 min"},
+  {id:"R203",navn:"Krema kyllingpasta",protein:"Kylling",kategori:"Pasta",tid:45,ingredienser:["Kyllingfillet","Olivenolje og smør","Løk","Selleri","Kvitlauksfedd","150 g pastaskruer","Pastakrydder","Tomatpuré","2,5 dl kyllingkraft","Kremfløyte","Spinat","Parmesan","Basilikum"],fremgang:"Steik kyllingfillet i ovn på 175 °C i ca. 14 min; Ha smør, hakka lauk, selleri og kvitlauk i panna; Kok opp krydder, tomatpuré, pasta, kraft og vatn i ca. 8 min; Ta av lokket og hell i kremfløyte, spinat og parmesan; Småkok 5 min og tilsett kylling og basilikum"},
+  {id:"R104",navn:"Pad Kra Pao",protein:"Kjøtt",kategori:"Asiatisk",tid:45,ingredienser:["Spinat","Sitron","Sopp","Gulrot","Kvitløk","Chilli","Basilikum","Kjøttdeig","Sriracha","Soyasaus og østerssaus","Egg","Ris","Honning"],fremgang:"Kok ris; Stek sopp i tørr panne til væsken fordamper; Tilsett olje og gulrot i strimlar; Ha i ris og stek på høy varme; Smak til med soyasaus, honning og sriracha; Vend inn spinat; Steik egg og legg på toppen",link:"https://gladkokken.no/oppskrifter/pad-kra-pao-rask-og-deilig-thailandsk-hverdagsmat"},
+  {id:"R105",navn:"Nachos",protein:"Kjøtt",kategori:"Form",tid:30,ingredienser:["Nachos og tortilla","Avokado","Blader","Tomat","Rødløk","Rømme","Mais","Ost","Bønner","Tacosaus","Tacokrydder"],fremgang:"Steik kjøtt og tilsett tacokrydder; Legg nachos i ildfast form; Strø over kjøtt, lauk, bønner og ost; Steik på 225 °C i ca. 10 min; Server med blader, avokado og tomater"},
+  {id:"R106",navn:"Biff og pasta",protein:"Kjøtt",kategori:"Tradisjonell",tid:30,ingredienser:["Sopp","Kvitlauk","Chilli","Tagliatelle","Matfløyte","Biff"],fremgang:"Steik biff; Hakk sopp, chilli og kvitlauk; Kok tagliatelle; Steik chilli, sopp og kvitlauk og tilsett matfløyte"},
+  {id:"R107",navn:"Lasagnegryte",protein:"Kjøtt",kategori:"Gryte",tid:45,ingredienser:["Kjøttdeig","Løk","Kvitlauk","Hakkede tomater","Tomatpuré","Kjøttkraft","Oregano","Lasagneplater","Matfløyte","Revet ost"],fremgang:"Steik lauk og hvitløk; Brun kjøttdeig; Rør inn tomatpuré, hakkede tomater, kraft og krydder; Knekk lasagneplater i bitar og ha i gryta; Småkok til pasta er mør; Rør inn fløyte; Topp med ost",link:"https://gladkokken.no/oppskrifter/broken-lasagna-pasta-hverdagsmat"},
+  {id:"R108",navn:"Kvikk-taco",protein:"Kjøtt",kategori:"Taco",tid:45,ingredienser:["Kjøttdeig","Tacokrydder","Tacolefsar","Salat","Tomat","Rødløk","Rømme","Ost","Guacamole"],fremgang:"Steik kjøttdeig og tilsett tacokrydder; Kutt grønnsaker; Server med lefsar og ønskt tilbehør"},
+  {id:"R109",navn:"Helgas dumplings",protein:"Kjøtt",kategori:"Asiatisk",tid:30,ingredienser:["Ingefær","Lime","Vårløk","Pak choy","Honning","Curry paste","Kokosmjølk","Soyasaus","Ferdige dumplings","Nudlar"],fremgang:"Miks ingefær, lime, honning, curry paste, kokosmjølk og soyasaus i ildfast form; Hakk pak choi og vend i sausen; Ha pak og dumplings i forma og steik på 180 °C i 10–12 min; Kok nudlar; Dryss over vårlauk"},
+  {id:"R303",navn:"Pasta med laks, sopp og spinat",protein:"Fisk",kategori:"Pasta",tid:30,ingredienser:["500 g laksefillet","Gul lauk","Sopp","Kvitlauk","Spinat","3 dl kremfløyte","Sitron","Tagliatelle","Parmesan"],fremgang:"Kutt sopp og lauk; Steik laks på 180 °C i 10–15 min; Steik sopp og lauk og kok opp med fløyte; Kok tagliatelle; Ha pastaen i panna saman med spinat; Riv over parmesan",link:"https://sulten.app/recipes/kremet-pasta-med-stekt-laks"},
+  {id:"R110",navn:"Løsets hjortesteik",protein:"Kjøtt",kategori:"Tradisjonell",tid:60,ingredienser:["Potet","Rosenkål","Gulrot","Sopp","Hjortesteik","Kjøttsaus"],fremgang:"Ha salt og pepper på hjortesteiken og steik i par timar på 125 °C; Del sopp og gulrøtter i strimlar; Kok potet og rosenkål; Steik sopp; Kok saus; Ta ut kjøttet ved ca. 70 °C",notater:"Kan også serveres med fløytegratinerte poteter"},
+  {id:"R111",navn:"Søtpotetnachos",protein:"Kjøtt",kategori:"Taco",tid:30,ingredienser:["Søtpotet","Rødløk","Sopp","Salat","Paprika","Fetaost","Rømme","Bønner","Kjøttdeig","Nachos","Ost"],fremgang:"Del søtpotet i skiver og krydre; Steik kjøttdeig, sopp og lauk med tacokrydder; Ha alt på brettet, miks med nachos og topp med ost; Servér med salat og rømme"},
+  {id:"R112",navn:"Søtpotetgryte",protein:"Kjøtt",kategori:"Gryte",tid:30,ingredienser:["Søtpotet","Gul lauk","Kvitlauk","Bønner","Hakkete tomatar","Tomatpuré","Kjøttdeig","Grønnsakskraft","Ris","Rømme","Tacosaus","Nachos"],fremgang:"Hakk og steik kvitlauk og lauk; Tilsett søtpotet, tacosaus, tomatar og kraft; Kok i ca. 20 min; Steik kjøttdeig med tacokrydder; Tilsett kjøttdeig og bønner; Servér med nachos",link:"https://meny.no/oppskrifter/vegetar/krydret-sotpotetgryte/"},
+  {id:"R304",navn:"Fiskekaker med pita",protein:"Fisk",kategori:"Gresk",tid:15,ingredienser:["Rødløk","Tomat","Blader","Aioli","Fiskekaker","Pita"],fremgang:"Steik fiskekaker; Kutt tomat og rødløk; Steik pita og servér"},
+  {id:"R113",navn:"Hjorteburger",protein:"Kjøtt",kategori:"Hamburger",tid:45,ingredienser:["Blader","Poteter","Rødløk","Hjortekjøtt","Baconterningar","Tyttebærsyltetøy","Crème fraîche","Aioli","Cheddar","Burgerbrød"],fremgang:"Lag burgere med hjortekjøtt og tilsett baconterningar, salt og pepper; Steik potetbåtar; Lag tyttebærsaus med syltetøy og crème fraîche; Steik burgere og legg på cheddar; Servér med aioli og blader"},
+  {id:"R204",navn:"Chicken pasta",protein:"Kylling",kategori:"Pasta",tid:30,ingredienser:["Gul lauk","Soltørka tomat","Sitron","Kvitlauk","Spinat","Kremfløyte","Kyllingkraft","Chillikrydder og oregano","Tomatpuré","Kyllingfillet","Pasta","Parmesan"],fremgang:"Steik kylling lett og krydre; Ta av kyllingen og steik kvitlauk, soltørka tomatar og lauk; Bland inn tomatpuré; Hell over kraft og kremfløyte; Tilsett kylling og kok i 10 min; Kok pasta; Tilsett spinat og parmesan"},
+  {id:"R114",navn:"Middagsform med egg",protein:"Kjøtt",kategori:"Form",tid:30,ingredienser:["Søtpotet","Potet","Gul lauk","200 g chorizopølse","Egg","Vårlauk","Bladpersille"],fremgang:"Skrell poteter, kutt i terningar og legg i ildfast form; Kutt lauk og chorizo og ha i form; Krydre og steik på 220 °C i 20–25 min; Klekk egg oppi og steik vidare i 5–10 min; Dryss over vårlauk",notater:"Kan serveres med litt sriracha",link:"https://www.matprat.no/oppskrifter/rask/enkel-middagsform-med-egg/"},
+  {id:"R205",navn:"Mammas kyllinggryte",protein:"Kylling",kategori:"Gryte",tid:30,ingredienser:["Kyllingfillet","Grønnsaker","Matfløyte","Krydder","Ris"],fremgang:"Steik kylling i bitar; Tilsett grønnsaker og fres; Hell i fløyte og smak til med krydder; La småkoke og servér med ris"},
+  {id:"R206",navn:"Kyllingfillet med blomkålrisotto",protein:"Kylling",kategori:"Tradisjonell",tid:45,ingredienser:["Blomkål","Gul lauk","Kvitlauk","Blader","Hønsebuljong","Risottoris","Smør","Eplejuice","Valnøttkjerner","Parmesan","Kyllingfillet"],fremgang:"Finhakk blomkål, lauk og kvitlauk; Smelt smør og fres kvitlauk og lauk; Tilsett ris og eplejuice; Tilsett litt og litt buljong; Rør inn blomkål og kok i ca. 20 min; Ha i valnøtter og parmesan; Steik kyllingfillet"},
+  {id:"R207",navn:"Club sandwich",protein:"Kylling",kategori:"Sandwich",tid:30,ingredienser:["Kyllingfillet","Salat","Løk","Mais","Tomat","Loff","Aioli","Kyllingkrydder","Ost","Bacon"],fremgang:"Steik kyllingfilleter og bacon; Kutt salat, lauk og tomat; Rist loffskiver og servér med mais og ost"},
+  {id:"R305",navn:"Laksetaco",protein:"Fisk",kategori:"Taco",tid:30,ingredienser:["Tacolefsar","Laks","Wokblanding","Nudlar","Chop sui","Rømme"],fremgang:"Kutt laks i bitar og steik den; Steik wok; Kok nudlar; Bland alt og varm opp med chop sui; Servér i tacolefsar"},
+  {id:"R306",navn:"Kokos- og currypanne med torsk",protein:"Fisk",kategori:"Gryte",tid:30,ingredienser:["Purre","Paprika","Rød chilli","Curry paste","Lett kokosmjølk","Lime","Koriander","Torsk","Ris"],fremgang:"Skjær torsk, purre og paprika og finhakk chilli; Kok ris; Fres purre og paprika; Tilsett curry paste; Tilsett kokosmjølk og kok opp; Legg i fisk og lime; La trekke i 5 min; Dryss over koriander",link:"https://www.matprat.no/oppskrifter/sunn/kokos--og-currypanne-med-torsk/"},
+  {id:"R115",navn:"Hamburger",protein:"Kjøtt",kategori:"Hamburger",tid:30,ingredienser:["Salat","Tomat","Syltagurk","Rød lauk","Burgerbrød","Burgerdressing","Hamburger","Pommes frites","Ketchup"],fremgang:"Steik pommes frites; Hakk grønnsaker; Steik hamburger; Servér med brød"},
+  {id:"R208",navn:"Kyllingwok",protein:"Kylling",kategori:"Wok",tid:30,ingredienser:["Paprika","Champignon","Brokkoli","Kylling","Woksaus","Nudlar"],fremgang:"Hakk grønnsaker; Steik kylling; Wok grønnsaker; Kok nudlar; Miks alt og varm opp"},
+  {id:"R116",navn:"Salsicciapasta",protein:"Kjøtt",kategori:"Pasta",tid:30,ingredienser:["Rigatoni","Salsiccia","Kvitlauk","Tomatpuré","Kremfløyte","Basilikumblader","Parmesan"],fremgang:"Press ut kjøttet frå salsiccia og steik i panne med olje; Tilsett kvitlauk, tomatpuré og kremfløyte; Kok opp og la småkoke; Kok pasta al dente; Bland pasta i sausen; Vend inn basilikum; Topp med olivenolje og parmesan",link:"https://www.godt.no/oppskrifter/middag/13163/salsiccia-pasta"},
+  {id:"R209",navn:"Bao bun med soyakylling",protein:"Kylling",kategori:"Asiatisk",tid:45,ingredienser:["Hvitløk","Ingefær","Mango","Agurk","Paprika","Salat","Koriander","Bao buns","Brunt sukker","Soyasaus","Kyllingfillet"],fremgang:"Skjær kylling i strimlar og steik; Kutt grønnsaker; Finhakk kvitlauk og ingefær og fres i olje; Tilsett brunt sukker, soyasaus og buljong og kok til sausen tjuknar; Steik kylling i sausen; Damp bao buns og servér"},
+  {id:"R117",navn:"Lasagne",protein:"Kjøtt",kategori:"Form",tid:45,ingredienser:["Toro lasagnepakke","Kjøttdeig","Ost","Kvitlauksbaguett"],fremgang:"Varm ovn til 225 °C; Brun kjøttdeig og tilsett vann og sausmiks; Legg kjøttsaus og lasagneplater lagvis i form; Topp med ost; Steik i 30–40 min"},
+  {id:"R118",navn:"Pitapizza",protein:"Kjøtt",kategori:"Pizza",tid:20,ingredienser:["Chilli","Kvitlauk","Rødløk","Sopp","Soltørka tomat","Artisjokk","Crème fraîche","Pita","Siliana"],fremgang:"Hakk kvitlauk og chilli og bland med crème fraîche, basilikum, salt og pepper; Smør utover pita; Ha på ønskt innhald; Steik på 220 °C i 5 min"},
+  {id:"R210",navn:"Solveigs kyllinggryte",protein:"Kylling",kategori:"Gryte",tid:45,ingredienser:["Kyllingfilet","Kyllingbuljong","Sambal oelek","Soyasaus","Mango chutney","Purreløk","Paprika","Mango","Crème fraîche","Kremfløyte","Maizena","Ris"],fremgang:"Steik kyllingbitar i olje; Tilsett buljong, sambal, soyasaus og mango chutney og kok opp; Skjær grønnsaker og mango; Tilsett crème fraîche, kremfløyte, frukt og grønnsaker; Spe med maizena-vatn til sausen tjuknar; Server med ris"},
+  {id:"R307",navn:"Laks med sesamcrust og quinoa",protein:"Fisk",kategori:"Tradisjonell",tid:45,ingredienser:["Laks","Sesamfrø","Sitronsaft","Hvitløkspulver","Soyasaus","Østerssaus","Lime","Honning","Chiliflak","Quinoa","Kyllingbuljong","Brokkoli","Gulrøtter"],fremgang:"Skyll quinoa og kok med vann og buljong i ca. 15 min; Kutt og kok grønnsaker lett; Vend laks i sesamfrø på éi side; Stek 3–4 min på sesamsiden; Kok opp soyasaus, østerssaus, lime, honning og chiliflak; Legg laksen tilbake og vend i sausen"},
+  {id:"R308",navn:"Tom Kha suppe med scampi",protein:"Fisk",kategori:"Suppe",tid:15,ingredienser:["Tom Kha suppe","Scampi","Vårlauk","Brød"],fremgang:"Kok suppe og hiv oppi scampi og vårlauk; Servér med brød"},
+  {id:"R211",navn:"Thai suppe med kylling",protein:"Kylling",kategori:"Suppe",tid:15,ingredienser:["Thai suppe","Kyllingbitar","Naan/brød"],fremgang:"Kok thai suppe og hiv oppi kyllingbitar; Servér med naan eller anna brød"},
+  {id:"R309",navn:"Fiskesuppe med fiskekake",protein:"Fisk",kategori:"Suppe",tid:15,ingredienser:["Fiskesuppe","Fiskekaker","Brød"],fremgang:"Kok fiskesuppe og hiv oppi terningar av fiskekaker; Servér med brød"},
+  {id:"R212",navn:"Bali kyllinggryte",protein:"Kylling",kategori:"Gryte",tid:30,ingredienser:["Toro Bali Kyllinggryte","Kyllingfilet","Matfløyte","Ris"],fremgang:"Kutt kylling i bitar og brun i panne; Tilsett vatn og rør inn Toro-posen; Kok opp og tilsett fløyte; Småkok 5–10 min; Servér med ris"},
+  {id:"R119",navn:"Tacogratteng",protein:"Kjøtt",kategori:"Taco",tid:45,ingredienser:["Kjøttdeig","Tacokrydder","Løk","Paprika","Mais","Hermetiske tomatar","Crème fraîche","Revet ost"],fremgang:"Steik kjøttdeig og løk; Tilsett tacokrydder, tomatar, paprika og mais; Rør inn crème fraîche; Ha alt i ildfast form; Dryss over ost; Steik på 225 °C til osten er gyllen"},
+  {id:"R213",navn:"Indisk kyllingsuppe m. eple og ingefær",protein:"Kylling",kategori:"Suppe",tid:45,ingredienser:["Gul løk","Kvitløksfedd","Rød chili","Ingefær","Eple","Karri","Kyllingkraft","Kokosmjølk","Kyllingfilet","Naanbrød"],fremgang:"Finhakk løk, kvitløk, chili, ingefær og eple; Fres i kjele til løken er blank; Rør inn karri og la surre i 1 min; Hell over kyllingkraft og kok i 10 min; Tilsett kylling og kokosmjølk; Småkok til kyllingen er gjennomkokt; Server med varme naanbrød"},
+  {id:"R120",navn:"Pasta med avokadodressing og bacon",protein:"Kjøtt",kategori:"Pasta",tid:30,ingredienser:["Avokado","Yoghurt naturell","Sitron","Hvitløkspulver","Pasta","Bacon","Parmesan"],fremgang:"Kok pasta; Steik bacon til det er sprøtt; Kjør avokado, yoghurt, sitronsaft og hvitløkspulver glatt med stavmikser; Bland dressingen inn i ferdigkokt pasta; Server toppet med bacon og parmesan"},
+  {id:"R121",navn:"Salsiccia-pasta",protein:"Kjøtt",kategori:"Pasta",tid:30,ingredienser:["Salsiccia","Pasta","Kvitløk","Tomatpuré","Sitron","Kremfløyte","Basilikum","Parmesan"],fremgang:"Press kjøtt ut av skinnet og steik i panne; Tilsett kvitløk; Rør inn tomatpuré, sitronsaft og fløyte og la simre; Kok pasta al dente; Bland pasta i saus; Vend inn basilikum; Topp med olivenolje og parmesan"},
+];
+
+// ══════════════════════════════════════════════════
+// STORE CATEGORIES
+// ══════════════════════════════════════════════════
+const STORE_CATS = [
+  { name:"🥦 Frukt og grønt", kw:["salat","blader","spinat","tomat","cherrytomater","paprika","gulrot","løk","lauk","rødløk","vårlauk","purreløk","purre","hvitløk","kvitlauk","kvitløk","chilli","ingefær","søtpotet","potet","avokado","mango","sitron","lime","eple","blomkål","brokkoli","rosenkål","agurk","mais","basilikum","koriander","persille","bladpersille","pak choy","sopp","sjampinjong","champignon","artisjokk","soltørka tomat","soltørka tomater","selleri","valnøttkjerner"] },
+  { name:"🍖 Kjøtt og fjærkre", kw:["kyllingfillet","kyllingfilet","kyllinglår","kylling","kjøttdeig","biff","salsiccia","pølse","hjortekjøtt","hjortesteik","bacon","chorizo","hamburger","kjøttboller","chorizopølse"] },
+  { name:"🐟 Fisk og sjømat", kw:["laks","torsk","fiskekaker","fiskeburger","scampi","laksefillet"] },
+  { name:"🥛 Meieri og egg", kw:["egg","ost","kremfløyte","matfløyte","crème fraîche","creme fraiche","rømme","fetaost","parmesan","cheddar","salatost","yoghurt","smør","kokosmjølk","fløyte"] },
+  { name:"🍞 Brød og bakst", kw:["pita","naan","naanbrød","burgerbrød","loff","rundstykker","tacolefser","tacolefsar","bao buns","brød","kvitlauksbaguett","pizzabotn"] },
+  { name:"🛒 Tørrvarer og pasta", kw:["pasta","rigatoni","tagliatelle","tortillini","nudlar","nudler","ris","quinoa","risottoris","lasagneplater","nachos","tortilla"] },
+  { name:"🥫 Hermetikk og saus", kw:["hakkede tomater","hakkete tomatar","tomatpuré","bønner","mais","hermetiske tomatar","kjøttkraft","kyllingkraft","grønnsakskraft","hønsebuljong","kjøttsaus","tacosaus","chop sui","tom kha","thai suppe","fiskesuppe","toro","sweet chilli","soyasaus","østerssaus","woksaus","aioli","burgerdressing","tzatziki","honning","mango chutney","curry paste","sambal oelek","sriracha","ketchup","syltagurk","tyttebærsyltetøy"] },
+  { name:"🫙 Krydder og tørt", kw:["tacokrydder","kyllingkrydder","pastakrydder","karri","oregano","chiliflak","hvitløkspulver","pepper","salt","aromat","sesamfrø","maizena","brunt sukker","sukker","eplejuice"] },
+  { name:"🫒 Oljer og diverse", kw:["olivenolje","olje"] },
+  { name:"🧊 Fryst", kw:["dumplings","ferdige dumplings","wokblanding","pommes frites"] },
+];
+
+function categorizIngr(ing) {
+  const l = ing.toLowerCase();
+  for (const c of STORE_CATS) {
+    if (c.kw.some(k => l.includes(k))) return c.name;
+  }
+  return "🛍 Anna";
+}
+
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+const emojis = { Kjøtt:"🥩", Kylling:"🍗", Fisk:"🐟" };
+const colors  = { Kjøtt:{bg:"#F5DADA",color:"var(--kjøtt)"}, Kylling:{bg:"#FBE9DF",color:"var(--kylling)"}, Fisk:{bg:"#D9ECF5",color:"var(--fisk)"} };
+
+let aktivProtein = "alle";
+let aktivKat = "alle";
+let søk = "";
+let valgte = new Set(); // selected recipe IDs
+
+// Shopping list items: { id, text, cat, checked, manual }
+let shopItems = [];
+let nextManualId = 1;
+
+// ══════════════════════════════════════════════════
+// TAB SWITCHING
+// ══════════════════════════════════════════════════
+let currentTab = "retter";
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById("pageRetter").classList.toggle("active", tab === "retter");
+  document.getElementById("pageHandle").classList.toggle("active", tab === "handle");
+  document.getElementById("tabRetter").classList.toggle("active", tab === "retter");
+  document.getElementById("tabHandle").classList.toggle("active", tab === "handle");
+  document.getElementById("cartBar").classList.toggle("visible", tab === "retter" && valgte.size > 0);
+  if (tab === "handle") renderShopPage();
+}
+
+// ══════════════════════════════════════════════════
+// RETTER PAGE
+// ══════════════════════════════════════════════════
+function filtrert() {
+  return retter
+    .filter(r => {
+      const pOk = aktivProtein === "alle" || r.protein === aktivProtein;
+      const kOk = aktivKat === "alle" || r.kategori === aktivKat;
+      const sOk = !søk || r.navn.toLowerCase().includes(søk) || r.kategori.toLowerCase().includes(søk) || r.ingredienser.join(" ").toLowerCase().includes(søk);
+      return pOk && kOk && sOk;
+    })
+    .sort((a, b) => a.tid - b.tid);
+}
+
+function getKategoriar() {
+  const base = aktivProtein === "alle" ? retter : retter.filter(r => r.protein === aktivProtein);
+  return ["alle", ...new Set(base.map(r => r.kategori).sort())];
+}
+
+function renderKat() {
+  const kats = getKategoriar();
+  const row = document.getElementById("catRow");
+  row.innerHTML = kats.map(k => `
+    <button class="pill${k === aktivKat ? " active-kat" : ""}" data-kat="${k}">
+      ${k === "alle" ? "Alle kategoriar" : k}
+    </button>`).join("");
+  row.querySelectorAll(".pill").forEach(btn =>
+    btn.addEventListener("click", () => { aktivKat = btn.dataset.kat; renderRetter(); })
+  );
+}
+
+function renderRetter() {
+  renderKat();
+  const liste = filtrert();
+  document.getElementById("countBar").textContent =
+    liste.length === retter.length
+      ? `${retter.length} retter · sortert frå raskast til lengst`
+      : `Viser ${liste.length} av ${retter.length} retter`;
+
+  const grid = document.getElementById("grid");
+  if (!liste.length) {
+    grid.innerHTML = `<div class="empty"><div class="empty-icon">🍽</div><h3>Ingen retter funnet</h3><p>Prøv ein annan kombinasjon</p></div>`;
+    return;
+  }
+  grid.innerHTML = liste.map((r, i) => `
+    <div class="recipe-card${valgte.has(r.id) ? " selected" : ""}" data-id="${r.id}" style="animation-delay:${Math.min(i,14)*0.04}s">
+      <div class="card-icon icon-${r.protein}">${emojis[r.protein]}</div>
+      <div class="card-content">
+        <div class="card-name">${r.navn}</div>
+        <div class="card-meta">
+          <span class="cat-chip chip-${r.protein}">${r.kategori}</span>
+          <span class="card-time">⏱ ${r.tid} min</span>
+        </div>
+      </div>
+      <div class="card-check" data-check="${r.id}">${valgte.has(r.id) ? "✓" : ""}</div>
+    </div>`).join("");
+
+  grid.querySelectorAll(".recipe-card").forEach(card => {
+    card.addEventListener("click", e => {
+      if (e.target.closest(".card-check")) return;
+      openRecipe(card.dataset.id);
+    });
+  });
+  grid.querySelectorAll(".card-check").forEach(btn =>
+    btn.addEventListener("click", e => { e.stopPropagation(); toggleSelect(btn.dataset.check); })
+  );
+  updateCartBar();
+}
+
+function toggleSelect(id) {
+  if (valgte.has(id)) {
+    valgte.delete(id);
+    // Remove non-manual items from this recipe
+    shopItems = shopItems.filter(i => i.manual || i.recipeId !== id);
+  } else {
+    valgte.add(id);
+    const r = retter.find(x => x.id === id);
+    // Add ingredients not already present
+    r.ingredienser.forEach(ingr => {
+      const exists = shopItems.some(i => !i.manual && i.text.toLowerCase() === ingr.toLowerCase());
+      if (!exists) {
+        shopItems.push({ id: `ri_${id}_${Date.now()}_${Math.random()}`, text: ingr, cat: categorizIngr(ingr), checked: false, manual: false, recipeId: id });
+      }
+    });
+  }
+  syncShopBadge();
+  renderRetter();
+}
+
+function updateCartBar() {
+  const bar = document.getElementById("cartBar");
+  const n = valgte.size;
+  document.getElementById("cartCount").textContent = n;
+  document.getElementById("cartLabel").textContent = n === 1 ? "rett valgt" : "retter valgt";
+  if (currentTab === "retter") bar.classList.toggle("visible", n > 0);
+}
+
+function syncShopBadge() {
+  const badge = document.getElementById("shopBadge");
+  const n = valgte.size;
+  badge.style.display = n > 0 ? "inline-flex" : "none";
+  badge.textContent = n;
+}
+
+// ══════════════════════════════════════════════════
+// RECIPE MODAL
+// ══════════════════════════════════════════════════
+function openRecipe(id) {
+  const r = retter.find(x => x.id === id);
+  const c = colors[r.protein];
+  const ingr = r.ingredienser.map(i => `<li><span class="dot dot-${r.protein}"></span>${i}</li>`).join("");
+  const steg = r.fremgang ? r.fremgang.split(";").map(s => s.trim()).filter(Boolean) : [];
+  const stegHTML = steg.map((s, i) => `<li class="step-item"><span class="step-num num-${r.protein}">${i+1}</span><span>${s}</span></li>`).join("");
+  const isAdded = valgte.has(id);
+
+  document.getElementById("recipeContent").innerHTML = `
+    <div class="modal-badge" style="background:${c.bg};color:${c.color}">${emojis[r.protein]} ${r.protein} · ${r.kategori}</div>
+    <div class="modal-title">${r.navn}</div>
+    <div class="modal-meta-row"><span class="meta-item">⏱ ${r.tid} min</span><span class="meta-item" style="opacity:.4">${r.id}</span></div>
+    <button class="add-to-list-btn${isAdded ? " added" : ""}" id="modalToggleBtn">
+      ${isAdded ? "✓ Lagt til i handleliste" : "+ Legg til i handleliste"}
+    </button>
+    ${r.ingredienser.length ? `<div class="modal-sec">Ingredienser</div><ul class="ingr-list">${ingr}</ul>` : ""}
+    ${stegHTML ? `<div class="modal-sec">Framgangsmåte</div><ol class="step-list">${stegHTML}</ol>` : ""}
+    ${r.notater ? `<div class="modal-sec">Tips</div><div class="tip-box">💡 ${r.notater}</div>` : ""}
+    ${r.link ? `<a class="link-btn" href="${r.link}" target="_blank">🔗 Sjå full oppskrift</a>` : ""}
+  `;
+  document.getElementById("recipeOverlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+
+  document.getElementById("modalToggleBtn").addEventListener("click", () => {
+    toggleSelect(id);
+    const btn = document.getElementById("modalToggleBtn");
+    const now = valgte.has(id);
+    btn.textContent = now ? "✓ Lagt til i handleliste" : "+ Legg til i handleliste";
+    btn.classList.toggle("added", now);
+  });
+}
+
+document.getElementById("closeRecipe").addEventListener("click", () => {
+  document.getElementById("recipeOverlay").classList.remove("open");
+  document.body.style.overflow = "";
+});
+document.getElementById("recipeOverlay").addEventListener("click", e => {
+  if (e.target === document.getElementById("recipeOverlay")) {
+    document.getElementById("recipeOverlay").classList.remove("open");
+    document.body.style.overflow = "";
+  }
+});
+
+// ══════════════════════════════════════════════════
+// SHOPPING LIST PAGE
+// ══════════════════════════════════════════════════
+function renderShopPage() {
+  const unchecked = shopItems.filter(i => !i.checked);
+  const checked   = shopItems.filter(i => i.checked);
+  const selectedRetter = retter.filter(r => valgte.has(r.id));
+
+  document.getElementById("shopMeta").textContent =
+    valgte.size > 0
+      ? `${valgte.size} retter · ${unchecked.length} varer att`
+      : "";
+
+  const isEmpty = shopItems.length === 0 && valgte.size === 0;
+  document.getElementById("shopEmpty").style.display   = isEmpty ? "block" : "none";
+  document.getElementById("shopContent").style.display = isEmpty ? "none"  : "block";
+  if (isEmpty) return;
+
+  // Selected dish chips
+  document.getElementById("selectedDishes").innerHTML =
+    selectedRetter.map(r => `
+      <span class="dish-chip">
+        ${emojis[r.protein]} ${r.navn}
+        <span class="dish-chip-x" data-remove="${r.id}">×</span>
+      </span>`).join("") +
+    (shopItems.filter(i => i.manual).length > 0
+      ? `<span class="dish-chip">✏️ Manuelt lagt til</span>` : "");
+
+  document.querySelectorAll(".dish-chip-x").forEach(btn =>
+    btn.addEventListener("click", () => { toggleSelect(btn.dataset.remove); renderShopPage(); })
+  );
+
+  // Group unchecked by store category
+  const orderedCats = STORE_CATS.map(c => c.name).concat(["🛍 Anna"]);
+  const groups = {};
+  unchecked.forEach(item => {
+    if (!groups[item.cat]) groups[item.cat] = [];
+    groups[item.cat].push(item);
+  });
+
+  let html = "";
+  orderedCats.forEach(cat => {
+    if (!groups[cat]) return;
+    html += `<div class="sl-section-title">${cat}</div><ul class="sl-list">`;
+    html += groups[cat].map(item => renderSlItem(item)).join("");
+    html += `</ul>`;
+  });
+  document.getElementById("shopListContent").innerHTML = html;
+
+  // Done section
+  const doneWrap = document.getElementById("doneSectionWrap");
+  doneWrap.style.display = checked.length ? "block" : "none";
+  document.getElementById("doneList").innerHTML = checked.map(item => renderSlItem(item)).join("");
+
+  // Attach events to all items
+  attachSlEvents();
+}
+
+function renderSlItem(item) {
+  return `
+    <li class="sl-item${item.checked ? " checked" : ""}" data-slid="${item.id}">
+      <div class="sl-checkbox">${item.checked ? "✓" : ""}</div>
+      <span class="sl-text">${item.text}</span>
+      <span class="sl-delete" data-del="${item.id}">✕</span>
+    </li>`;
+}
+
+function attachSlEvents() {
+  document.querySelectorAll(".sl-item").forEach(el => {
+    el.addEventListener("click", e => {
+      if (e.target.closest(".sl-delete")) return;
+      const id = el.dataset.slid;
+      const item = shopItems.find(i => i.id === id);
+      if (item) { item.checked = !item.checked; renderShopPage(); }
+    });
+  });
+  document.querySelectorAll(".sl-delete").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      shopItems = shopItems.filter(i => i.id !== btn.dataset.del);
+      renderShopPage();
+    });
+  });
+}
+
+// Manual add
+document.getElementById("manualAddBtn").addEventListener("click", addManual);
+document.getElementById("manualInput").addEventListener("keydown", e => { if (e.key === "Enter") addManual(); });
+
+function addManual() {
+  const input = document.getElementById("manualInput");
+  const txt = input.value.trim();
+  if (!txt) return;
+  shopItems.push({ id: `m_${nextManualId++}`, text: txt, cat: categorizIngr(txt), checked: false, manual: true });
+  input.value = "";
+  renderShopPage();
+  showToast(`«${txt}» lagt til`);
+}
+
+// Bottom action buttons
+document.getElementById("btnCopyAll").addEventListener("click", async () => {
+  const orderedCats = STORE_CATS.map(c => c.name).concat(["🛍 Anna"]);
+  const unchecked = shopItems.filter(i => !i.checked);
+  const checked   = shopItems.filter(i => i.checked);
+  const selectedRetter = retter.filter(r => valgte.has(r.id));
+  let txt = "🛒 HANDLELISTE\n";
+  if (selectedRetter.length) txt += selectedRetter.map(r => `• ${r.navn}`).join("\n") + "\n";
+
+  const groups = {};
+  unchecked.forEach(item => {
+    if (!groups[item.cat]) groups[item.cat] = [];
+    groups[item.cat].push(item.text);
+  });
+  orderedCats.forEach(cat => {
+    if (!groups[cat]) return;
+    txt += `\n${cat}\n`;
+    txt += groups[cat].map(i => `☐ ${i}`).join("\n") + "\n";
+  });
+  if (checked.length) {
+    txt += `\n✅ Allereie i kurven\n`;
+    txt += checked.map(i => `✓ ${i.text}`).join("\n") + "\n";
+  }
+
+  try {
+    await navigator.clipboard.writeText(txt);
+    showToast("✅ Lista er kopiert!");
+  } catch {
+    showToast("Kunne ikkje kopiere – prøv manuelt");
+  }
+});
+
+document.getElementById("btnResetDone").addEventListener("click", () => {
+  shopItems.forEach(i => { i.checked = false; });
+  renderShopPage();
+  showToast("Avhukingar nullstilte");
+});
+
+document.getElementById("btnClearAll").addEventListener("click", () => {
+  if (!confirm(`Fjerne alle ${valgte.size} valgte retter og tøme handlelista?`)) return;
+  valgte.clear();
+  shopItems = shopItems.filter(i => i.manual); // keep manual items
+  syncShopBadge();
+  updateCartBar();
+  renderShopPage();
+  showToast("Handleliste tømt");
+});
+
+// ══════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
+}
+
+// ══════════════════════════════════════════════════
+// PROTEIN TABS + SEARCH
+// ══════════════════════════════════════════════════
+document.querySelectorAll("#proteinRow .pill").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#proteinRow .pill").forEach(p => p.className = "pill");
+    btn.classList.add(`active-${btn.dataset.protein}`);
+    aktivProtein = btn.dataset.protein;
+    aktivKat = "alle";
+    renderRetter();
+  });
+});
+
+document.getElementById("searchInput").addEventListener("input", e => {
+  søk = e.target.value.toLowerCase().trim();
+  renderRetter();
+});
+
+renderRetter();
+</script>
+</body>
+</html>
