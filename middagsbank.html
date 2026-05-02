@@ -138,10 +138,26 @@
     color: white;
   }
   .recipe-card.selected .card-check { background: var(--green); border-color: var(--green); }
-  .card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .card-icon { width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; overflow: hidden; position: relative; }
   .icon-Kjøtt   { background: #F5DADA; }
   .icon-Kylling { background: #FBE9DF; }
   .icon-Fisk    { background: #D9ECF5; }
+  .card-icon img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; border-radius: 12px; }
+
+  /* ── MODAL HERO IMAGE ── */
+  .modal-hero {
+    width: calc(100% + 48px); margin: -26px -24px 0;
+    height: 210px; position: relative; overflow: hidden; flex-shrink: 0;
+  }
+  .modal-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .modal-hero-fallback {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center; font-size: 64px;
+  }
+  .modal-hero-gradient {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+    background: linear-gradient(to bottom, transparent, var(--card-bg));
+  }
   .card-content { flex: 1; min-width: 0; padding-right: 28px; }
   .card-name { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .card-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -171,7 +187,9 @@
   .overlay { display: none; position: fixed; inset: 0; background: rgba(28,26,23,0.5); backdrop-filter: blur(5px); z-index: 100; align-items: flex-end; }
   .overlay.open { display: flex; }
   .sheet { background: var(--card-bg); border-radius: 26px 26px 0 0; padding: 26px 24px 50px; width: 100%; animation: fadeUp 0.28s ease; max-height: 88vh; overflow-y: auto; position: relative; }
+  .sheet.has-hero { padding-top: 0; }
   .sheet-handle { width: 36px; height: 4px; background: var(--warm); border-radius: 2px; margin: 0 auto 22px; }
+  .sheet.has-hero .sheet-handle { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 10; background: rgba(255,255,255,0.6); }
   .close-btn { position: absolute; top: 16px; right: 20px; width: 32px; height: 32px; border-radius: 50%; background: var(--warm); border: none; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
   .modal-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 500; margin-bottom: 12px; }
   .modal-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--ink); margin-bottom: 8px; line-height: 1.25; }
@@ -461,6 +479,32 @@ function categorizIngr(ing) {
 const emojis = { Kjøtt:"🥩", Kylling:"🍗", Fisk:"🐟" };
 const colors  = { Kjøtt:{bg:"#F5DADA",color:"var(--kjøtt)"}, Kylling:{bg:"#FBE9DF",color:"var(--kylling)"}, Fisk:{bg:"#D9ECF5",color:"var(--fisk)"} };
 
+const IMG_BASE = "https://raw.githubusercontent.com/ohulbak-cyber/Middagsbank-app/main/bilder/";
+
+function imgUrl(id) { return `${IMG_BASE}${id}.jpeg`; }
+
+// Render image with fallback – if img fails to load, show emoji instead
+function cardThumb(id, protein) {
+  return `<img src="${imgUrl(id)}" alt="" loading="lazy"
+    onerror="this.style.display='none'"
+    style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:12px">
+  <span style="font-size:22px">${emojis[protein]}</span>`;
+}
+
+function heroImg(id, protein) {
+  const col = { Kjøtt:"#8B3A3A", Kylling:"#C4703A", Fisk:"#3A6E8B" }[protein];
+  return `
+    <div class="modal-hero">
+      <div class="modal-hero-fallback" style="background:${col}20">
+        <span style="font-size:72px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.15))">${emojis[protein]}</span>
+      </div>
+      <img src="${imgUrl(id)}" alt=""
+        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"
+        onerror="this.style.display='none'">
+      <div class="modal-hero-gradient"></div>
+    </div>`
+}
+
 let aktivProtein = "alle";
 let aktivKat = "alle";
 let søk = "";
@@ -530,7 +574,7 @@ function renderRetter() {
   }
   grid.innerHTML = liste.map((r, i) => `
     <div class="recipe-card${valgte.has(r.id) ? " selected" : ""}" data-id="${r.id}" style="animation-delay:${Math.min(i,14)*0.04}s">
-      <div class="card-icon icon-${r.protein}">${emojis[r.protein]}</div>
+      <div class="card-icon icon-${r.protein}">${cardThumb(r.id, r.protein)}</div>
       <div class="card-content">
         <div class="card-name">${r.navn}</div>
         <div class="card-meta">
@@ -600,18 +644,22 @@ function openRecipe(id) {
   const isAdded = valgte.has(id);
 
   document.getElementById("recipeContent").innerHTML = `
-    <div class="modal-badge" style="background:${c.bg};color:${c.color}">${emojis[r.protein]} ${r.protein} · ${r.kategori}</div>
-    <div class="modal-title">${r.navn}</div>
-    <div class="modal-meta-row"><span class="meta-item">⏱ ${r.tid} min</span><span class="meta-item" style="opacity:.4">${r.id}</span></div>
-    <button class="add-to-list-btn${isAdded ? " added" : ""}" id="modalToggleBtn">
-      ${isAdded ? "✓ Lagt til i handleliste" : "+ Legg til i handleliste"}
-    </button>
-    ${r.ingredienser.length ? `<div class="modal-sec">Ingredienser</div><ul class="ingr-list">${ingr}</ul>` : ""}
-    ${stegHTML ? `<div class="modal-sec">Framgangsmåte</div><ol class="step-list">${stegHTML}</ol>` : ""}
-    ${r.notater ? `<div class="modal-sec">Tips</div><div class="tip-box">💡 ${r.notater}</div>` : ""}
-    ${r.link ? `<a class="link-btn" href="${r.link}" target="_blank">🔗 Sjå full oppskrift</a>` : ""}
+    ${heroImg(r.id, r.protein)}
+    <div style="margin-top:16px">
+      <div class="modal-badge" style="background:${c.bg};color:${c.color}">${emojis[r.protein]} ${r.protein} · ${r.kategori}</div>
+      <div class="modal-title">${r.navn}</div>
+      <div class="modal-meta-row"><span class="meta-item">⏱ ${r.tid} min</span><span class="meta-item" style="opacity:.4">${r.id}</span></div>
+      <button class="add-to-list-btn${isAdded ? " added" : ""}" id="modalToggleBtn">
+        ${isAdded ? "✓ Lagt til i handleliste" : "+ Legg til i handleliste"}
+      </button>
+      ${r.ingredienser.length ? `<div class="modal-sec">Ingredienser</div><ul class="ingr-list">${ingr}</ul>` : ""}
+      ${stegHTML ? `<div class="modal-sec">Framgangsmåte</div><ol class="step-list">${stegHTML}</ol>` : ""}
+      ${r.notater ? `<div class="modal-sec">Tips</div><div class="tip-box">💡 ${r.notater}</div>` : ""}
+      ${r.link ? `<a class="link-btn" href="${r.link}" target="_blank">🔗 Sjå full oppskrift</a>` : ""}
+    </div>
   `;
   document.getElementById("recipeOverlay").classList.add("open");
+  document.querySelector(".sheet").classList.add("has-hero");
   document.body.style.overflow = "hidden";
 
   document.getElementById("modalToggleBtn").addEventListener("click", () => {
