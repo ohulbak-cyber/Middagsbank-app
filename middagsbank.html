@@ -519,7 +519,7 @@ function cardThumb(id, protein) {
   <span style="font-size:22px">${emojis[protein]}</span>`;
 }
 
-function heroImg(id, protein, navn, kategori, tid) {
+function heroImg(id, protein) {
   const col = { Kjøtt:"#8B3A3A", Kylling:"#C4703A", Fisk:"#3A6E8B" }[protein];
   return `
     <div class="modal-hero">
@@ -529,12 +529,6 @@ function heroImg(id, protein, navn, kategori, tid) {
       <img src="${imgUrl(id)}" alt=""
         onerror="this.src='${imgUrlFallback(id)}'; this.onerror=function(){this.style.display='none'}"
         style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center">
-      <div class="modal-hero-gradient"></div>
-      <div class="modal-hero-content">
-        <div class="modal-hero-badge">${emojis[protein]} ${protein} · ${kategori}</div>
-        <div class="modal-hero-title">${navn}</div>
-        <div class="modal-hero-meta">⏱ ${tid} min</div>
-      </div>
       <button class="modal-close-hero" id="closeRecipeBtn">✕</button>
     </div>`
 }
@@ -688,7 +682,7 @@ function openRecipe(id) {
   const isAdded = valgte.has(id);
 
   document.getElementById("recipeContent").innerHTML = `
-    ${heroImg(r.id, r.protein, r.navn, r.kategori, r.tid)}
+    ${heroImg(r.id, r.protein)}
     <div style="margin-top:16px">
       <div class="modal-below-hero">
         <div class="modal-hero-badge" style="background:${c.bg};color:${c.color}">${emojis[r.protein]} ${r.protein} · ${r.kategori}</div>
