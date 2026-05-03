@@ -482,11 +482,12 @@ const colors  = { Kjøtt:{bg:"#F5DADA",color:"var(--kjøtt)"}, Kylling:{bg:"#FBE
 const IMG_BASE = "https://raw.githubusercontent.com/ohulbak-cyber/Middagsbank-app/main/bilder/";
 
 function imgUrl(id) { return `${IMG_BASE}${id}.JPEG`; }
+function imgUrlFallback(id) { return `${IMG_BASE}${id}.jpg`; }
 
-// Render image with fallback – if img fails to load, show emoji instead
+// Tries JPEG first, then jpg, then hides if both fail
 function cardThumb(id, protein) {
   return `<img src="${imgUrl(id)}" alt="" loading="lazy"
-    onerror="this.style.display='none'"
+    onerror="this.src='${imgUrlFallback(id)}'; this.onerror=function(){this.style.display='none'}"
     style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:12px">
   <span style="font-size:22px">${emojis[protein]}</span>`;
 }
@@ -499,8 +500,8 @@ function heroImg(id, protein) {
         <span style="font-size:72px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.15))">${emojis[protein]}</span>
       </div>
       <img src="${imgUrl(id)}" alt=""
-        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"
-        onerror="this.style.display='none'">
+        onerror="this.src='${imgUrlFallback(id)}'; this.onerror=function(){this.style.display='none'}"
+        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
       <div class="modal-hero-gradient"></div>
     </div>`
 }
