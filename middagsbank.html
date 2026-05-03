@@ -147,7 +147,7 @@
   /* ── MODAL HERO IMAGE – Variant C, text at TOP ── */
   .modal-hero {
     width: calc(100% + 48px); margin: -26px -24px 0;
-    height: 300px; position: relative; overflow: hidden; flex-shrink: 0;
+    height: 320px; position: relative; overflow: hidden; flex-shrink: 0;
   }
   .modal-hero img {
     width: 100%; height: 100%; object-fit: cover;
@@ -157,17 +157,16 @@
     width: 100%; height: 100%;
     display: flex; align-items: center; justify-content: center; font-size: 80px;
   }
-  /* Gradient from TOP so text is readable, bottom stays clean */
   .modal-hero-gradient {
     position: absolute; inset: 0;
     background: linear-gradient(to bottom,
-      rgba(28,26,23,0.72) 0%,
-      rgba(28,26,23,0.20) 45%,
+      rgba(28,26,23,0.68) 0%,
+      rgba(28,26,23,0.15) 50%,
       rgba(28,26,23,0.0) 100%);
   }
   .modal-hero-content {
     position: absolute; top: 0; left: 0; right: 0;
-    padding: 18px 20px 16px;
+    padding: 46px 20px 16px;
   }
   .modal-hero-badge {
     display: inline-flex; align-items: center; gap: 4px;
@@ -189,9 +188,8 @@
     display: flex; gap: 8px; align-items: center;
     font-size: 12px; color: rgba(245,240,232,0.8);
   }
-  /* Close button sits top-right INSIDE hero */
   .modal-close-hero {
-    position: absolute; top: 14px; right: 14px; z-index: 20;
+    position: absolute; top: 46px; right: 14px; z-index: 20;
     width: 30px; height: 30px; border-radius: 50%;
     background: rgba(28,26,23,0.45); backdrop-filter: blur(6px);
     border: none; cursor: pointer; font-size: 14px;
@@ -647,6 +645,7 @@ function renderRetter() {
 function toggleSelect(id) {
   if (valgte.has(id)) {
     valgte.delete(id);
+    // Remove recipe items AND reset checked state on any that were checked
     shopItems = shopItems.filter(i => i.manual || i.recipeId !== id);
   } else {
     valgte.add(id);
@@ -655,11 +654,14 @@ function toggleSelect(id) {
       const exists = shopItems.some(i => !i.manual && i.text.toLowerCase() === ingr.toLowerCase());
       if (!exists) {
         shopItems.push({ id: `ri_${id}_${Date.now()}_${Math.random()}`, text: ingr, cat: categorizIngr(ingr), checked: false, manual: false, recipeId: id });
+      } else {
+        // If ingredient already exists from another recipe, reset checked
+        const existing = shopItems.find(i => i.text.toLowerCase() === ingr.toLowerCase());
+        if (existing) existing.checked = false;
       }
     });
   }
   syncShopBadge();
-  // Patch only the affected card instead of re-rendering everything
   const card = document.querySelector(`.recipe-card[data-id="${id}"]`);
   if (card) {
     const isNowSelected = valgte.has(id);
