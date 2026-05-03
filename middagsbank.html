@@ -144,10 +144,10 @@
   .icon-Fisk    { background: #D9ECF5; }
   .card-icon img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; border-radius: 12px; }
 
-  /* ── MODAL HERO IMAGE – clean image, text below ── */
+  /* ── MODAL HERO IMAGE – full bleed to top ── */
   .modal-hero {
     width: calc(100% + 48px); margin: -26px -24px 0;
-    height: 280px; position: relative; overflow: hidden; flex-shrink: 0;
+    height: 360px; position: relative; overflow: hidden; flex-shrink: 0;
   }
   .modal-hero img {
     width: 100%; height: 100%; object-fit: cover;
@@ -158,12 +158,12 @@
     display: flex; align-items: center; justify-content: center; font-size: 80px;
   }
   .modal-hero-gradient { display: none; }
-  .modal-hero-content { display: none; }
+  .modal-hero-content  { display: none; }
   .modal-close-hero {
-    position: absolute; top: 14px; right: 14px; z-index: 20;
-    width: 30px; height: 30px; border-radius: 50%;
-    background: rgba(28,26,23,0.45); backdrop-filter: blur(6px);
-    border: none; cursor: pointer; font-size: 14px;
+    position: absolute; top: 52px; right: 14px; z-index: 20;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(28,26,23,0.50); backdrop-filter: blur(8px);
+    border: none; cursor: pointer; font-size: 15px;
     display: flex; align-items: center; justify-content: center;
     color: white;
   }
@@ -214,7 +214,7 @@
   .overlay { display: none; position: fixed; inset: 0; background: rgba(28,26,23,0.5); backdrop-filter: blur(5px); z-index: 100; align-items: flex-end; }
   .overlay.open { display: flex; }
   .sheet { background: var(--card-bg); border-radius: 26px 26px 0 0; padding: 26px 24px 50px; width: 100%; animation: fadeUp 0.28s ease; max-height: 88vh; overflow-y: auto; position: relative; }
-  .sheet.has-hero { padding-top: 0; }
+  .sheet.has-hero { padding-top: 0; border-radius: 0; max-height: 100vh; }
   .sheet-handle { width: 36px; height: 4px; background: var(--warm); border-radius: 2px; margin: 0 auto 22px; }
   .sheet.has-hero .sheet-handle { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 10; background: rgba(255,255,255,0.6); }
   .close-btn { position: absolute; top: 16px; right: 20px; width: 32px; height: 32px; border-radius: 50%; background: var(--warm); border: none; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
