@@ -213,10 +213,13 @@
   /* ── RECIPE DETAIL OVERLAY ── */
   .overlay { display: none; position: fixed; inset: 0; background: rgba(28,26,23,0.5); backdrop-filter: blur(5px); z-index: 100; align-items: flex-end; }
   .overlay.open { display: flex; }
+  .overlay.fullscreen { align-items: stretch; }
   .sheet { background: var(--card-bg); border-radius: 26px 26px 0 0; padding: 26px 24px 50px; width: 100%; animation: fadeUp 0.28s ease; max-height: 88vh; overflow-y: auto; position: relative; }
-  .sheet.has-hero { padding-top: 0; border-radius: 0; max-height: 100vh; }
+  .sheet.has-hero { padding-top: 0; border-radius: 0; height: 100vh; max-height: 100vh; overflow-y: auto; }
   .sheet-handle { width: 36px; height: 4px; background: var(--warm); border-radius: 2px; margin: 0 auto 22px; }
-  .sheet.has-hero .sheet-handle { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 10; background: rgba(255,255,255,0.6); }
+  .sheet.has-hero .sheet-handle { display: none; }
+  .overlay.open.fullscreen { align-items: stretch; background: none; backdrop-filter: none; }
+  .overlay.open.fullscreen .sheet { animation: none; }
   .close-btn { position: absolute; top: 16px; right: 20px; width: 32px; height: 32px; border-radius: 50%; background: var(--warm); border: none; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
   .modal-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 500; margin-bottom: 12px; }
   .modal-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--ink); margin-bottom: 8px; line-height: 1.25; }
@@ -698,7 +701,7 @@ function openRecipe(id) {
       ${r.link ? `<a class="link-btn" href="${r.link}" target="_blank">🔗 Sjå full oppskrift</a>` : ""}
     </div>
   `;
-  document.getElementById("recipeOverlay").classList.add("open");
+  document.getElementById("recipeOverlay").classList.add("open", "fullscreen");
   document.querySelector(".sheet").classList.add("has-hero");
   document.body.style.overflow = "hidden";
 
@@ -715,7 +718,7 @@ function openRecipe(id) {
 }
 
 function closeRecipe() {
-  document.getElementById("recipeOverlay").classList.remove("open");
+  document.getElementById("recipeOverlay").classList.remove("open", "fullscreen");
   document.querySelector(".sheet").classList.remove("has-hero");
   document.body.style.overflow = "";
 }
