@@ -430,8 +430,148 @@
 // ══════════════════════════════════════════════════
 // DATA
 // ══════════════════════════════════════════════════
+// Ingredient format: { n: "Namn", a: amount (number), u: "unit" }
+// Units: g, dl, stk, ss, ts, pk, boks, neve, fedd, never
 const retter = [
-  {id:"R100",navn:"One pot pasta med Salsiccia",protein:"Kjøtt",kategori:"Pasta",tid:30,ingredienser:["300 g Salsiccia","250 g sjampinjong","350 g pasta","8 dl kjøttkraft","350 g cherrytomater","1 håndfull basilikum","Parmesan"],fremgang:"Steik kjøttboller; Tilsett sopp og fres; Ha i pasta, kraft, tomater, salt og pepper; Kok opp og tilsett basilikum; Server med parmesan",link:"https://www.godt.no/oppskrifter/pasta/7294/one-pot-pasta-med-salsiccia"},
+  {id:"R100",navn:"One pot pasta med Salsiccia",protein:"Kjøtt",kategori:"Pasta",tid:30,
+   ingredienser:[{n:"Salsiccia",a:400,u:"g"},{n:"Sjampinjong",a:200,u:"g"},{n:"Pasta",a:300,u:"g"},{n:"Kjøttkraft",a:5,u:"dl"},{n:"Cherrytomater",a:250,u:"g"},{n:"Basilikum",a:1,u:"neve"},{n:"Parmesan",a:50,u:"g"}],
+   fremgang:"Steik kjøttboller; Tilsett sopp og fres; Ha i pasta, kraft, tomater, salt og pepper; Kok opp og tilsett basilikum; Server med parmesan",link:"https://www.godt.no/oppskrifter/pasta/7294/one-pot-pasta-med-salsiccia"},
+  {id:"R200",navn:"Sundagskylling",protein:"Kylling",kategori:"Tradisjonell",tid:45,
+   ingredienser:[{n:"Kyllinglår",a:500,u:"g"},{n:"Potet",a:400,u:"g"},{n:"Søtpotet",a:200,u:"g"},{n:"Gulrot",a:2,u:"stk"},{n:"Rødløk",a:1,u:"stk"},{n:"Olivenolje",a:3,u:"ss"},{n:"Kyllingkrydder",a:2,u:"ts"}],
+   fremgang:"Sett steikeomn på 200 °C varmluft; Hakk opp grønnsaker i medium bitar og miks med olje og krydder; Steik ca. 45 min; Legg kylling i form, massér inn krydder og olje; Steik ca. 30 min",notater:"Kan også lages med kalkun"},
+  {id:"R101",navn:"Tortillini og pølse",protein:"Kjøtt",kategori:"Tradisjonell",tid:20,
+   ingredienser:[{n:"Pølse",a:400,u:"g"},{n:"Salat",a:1,u:"pk"},{n:"Tortellini",a:300,u:"g"},{n:"Salatost",a:100,u:"g"},{n:"Tomat",a:2,u:"stk"},{n:"Aioli",a:1,u:"pk"},{n:"Rundstykker",a:4,u:"stk"}],
+   fremgang:"Steik grønnsaker; Hakk grønnsaker og miks; Steik pølser; Kok tortillini; Servér med aioli"},
+  {id:"R300",navn:"Laks med eksotiske frukter",protein:"Fisk",kategori:"Tradisjonell",tid:30,
+   ingredienser:[{n:"Laks",a:500,u:"g"},{n:"Avokado",a:1,u:"stk"},{n:"Mango",a:1,u:"stk"},{n:"Lime",a:1,u:"stk"},{n:"Cherrytomater",a:150,u:"g"},{n:"Rødløk",a:1,u:"stk"},{n:"Vårløk",a:3,u:"stk"},{n:"Paprika",a:1,u:"stk"},{n:"Sweet Chilli saus",a:1,u:"pk"},{n:"Ris",a:300,u:"g"}],
+   fremgang:"Kutt grønnsaker i ein bolle og press over lime; Salt og pepper på laks og steik på 200 °C i 12–15 min; Kok ris",link:"https://trinesmatblogg.no/recipe/laks-med-mango-og-avokadosalat/"},
+  {id:"R201",navn:"Ruths kyllinggryte",protein:"Kylling",kategori:"Gryte",tid:30,
+   ingredienser:[{n:"Kyllingfillet",a:500,u:"g"},{n:"Soltørket tomat",a:100,u:"g"},{n:"Sjampinjong",a:200,u:"g"},{n:"Paprika",a:1,u:"stk"},{n:"Kremfløyte",a:3,u:"dl"},{n:"Hvitløk",a:2,u:"fedd"},{n:"Tagliatelle",a:300,u:"g"},{n:"Soyasaus",a:2,u:"ss"},{n:"Maizena",a:1,u:"ss"}],
+   fremgang:"Steik kylling; Tilsett grønnsaker og fres; Hell i fløyte og soyasaus; La småkoke; Kok tagliatelle og servér"},
+  {id:"R301",navn:"Laks og nudler med soya",protein:"Fisk",kategori:"Tradisjonell",tid:30,
+   ingredienser:[{n:"Laks",a:500,u:"g"},{n:"Nudler",a:300,u:"g"},{n:"Paprika",a:1,u:"stk"},{n:"Rødløk",a:1,u:"stk"},{n:"Hvitløk",a:2,u:"fedd"},{n:"Purreløk",a:1,u:"stk"},{n:"Soyasaus",a:4,u:"ss"},{n:"Honning",a:1,u:"ss"}],
+   fremgang:"Hakk opp grønnsaker og steik dei; Steik laks; Kok nudler; Miks kvitlauk, purrelauk, olje, soyasaus og honning til saus"},
+  {id:"R102",navn:"Enkle greske kjøttboller",protein:"Kjøtt",kategori:"Gresk",tid:20,
+   ingredienser:[{n:"Kjøttboller",a:400,u:"g"},{n:"Salat",a:1,u:"pk"},{n:"Cherrytomater",a:150,u:"g"},{n:"Rødløk",a:1,u:"stk"},{n:"Tzatziki",a:1,u:"pk"},{n:"Pita",a:4,u:"stk"}],
+   fremgang:"Steik kjøttboller; Tilbred salat; Servér med pita"},
+  {id:"R302",navn:"Fiskeburger med potet",protein:"Fisk",kategori:"Hamburger",tid:30,
+   ingredienser:[{n:"Fiskeburger",a:3,u:"stk"},{n:"Potet",a:400,u:"g"},{n:"Rødløk",a:1,u:"stk"},{n:"Tomat",a:2,u:"stk"},{n:"Paprika",a:1,u:"stk"},{n:"Salat",a:1,u:"pk"},{n:"Hamburgerbrød",a:3,u:"stk"},{n:"Aioli",a:1,u:"pk"}],
+   fremgang:"Steik potetbåtar; Steik fiskeburger; Del opp grønnsaker; Servér med burgerbrød"},
+  {id:"R202",navn:"Indisk kyllingsuppe",protein:"Kylling",kategori:"Suppe",tid:45,
+   ingredienser:[{n:"Løk",a:1,u:"stk"},{n:"Hvitløk",a:2,u:"fedd"},{n:"Rød chili",a:1,u:"stk"},{n:"Ingefær",a:1,u:"ss"},{n:"Eple",a:1,u:"stk"},{n:"Karri",a:2,u:"ts"},{n:"Kyllingkraft",a:9,u:"dl"},{n:"Kokosmjølk",a:2,u:"dl"},{n:"Kyllingfillet",a:500,u:"g"},{n:"Naanbrød",a:3,u:"stk"}],
+   fremgang:"Fres lauk, chilli, ingefær, kvitlauk og eple; Tilsett kyllingkraft og kok opp i 10–15 min; Steik kylling; Tilsett kylling og kokosmjølk og gi det eit oppkok; Smak til"},
+  {id:"R103",navn:"Helgas kvite pizza",protein:"Kjøtt",kategori:"Pizza",tid:30,
+   ingredienser:[{n:"Rød chili",a:1,u:"stk"},{n:"Hvitløk",a:2,u:"fedd"},{n:"Rødløk",a:1,u:"stk"},{n:"Sjampinjong",a:150,u:"g"},{n:"Soltørket tomat",a:80,u:"g"},{n:"Artisjokk",a:1,u:"boks"},{n:"Crème fraîche",a:2,u:"dl"},{n:"Pizzabunn",a:2,u:"stk"},{n:"Salami/Siliana",a:100,u:"g"}],
+   fremgang:"Hakk kvitlauk og chilli og bland med crème fraîche, basilikum, salt og pepper; Smør utover botn; Ha på ønskt innhald; Steik på 220 °C i 10–15 min"},
+  {id:"R203",navn:"Krema kyllingpasta",protein:"Kylling",kategori:"Pasta",tid:45,
+   ingredienser:[{n:"Kyllingfillet",a:500,u:"g"},{n:"Løk",a:1,u:"stk"},{n:"Selleri",a:2,u:"stk"},{n:"Hvitløk",a:3,u:"fedd"},{n:"Pasta",a:300,u:"g"},{n:"Tomatpuré",a:2,u:"ss"},{n:"Kyllingkraft",a:2,u:"dl"},{n:"Kremfløyte",a:2,u:"dl"},{n:"Spinat",a:100,u:"g"},{n:"Parmesan",a:50,u:"g"},{n:"Basilikum",a:1,u:"neve"}],
+   fremgang:"Steik kyllingfillet i ovn på 175 °C i ca. 14 min; Ha smør, hakka lauk, selleri og kvitlauk i panna; Kok opp krydder, tomatpuré, pasta, kraft og vatn i ca. 8 min; Ta av lokket og hell i kremfløyte, spinat og parmesan; Småkok 5 min og tilsett kylling og basilikum"},
+  {id:"R104",navn:"Pad Kra Pao",protein:"Kjøtt",kategori:"Asiatisk",tid:45,
+   ingredienser:[{n:"Spinat",a:100,u:"g"},{n:"Sitron",a:1,u:"stk"},{n:"Sjampinjong",a:150,u:"g"},{n:"Gulrot",a:2,u:"stk"},{n:"Hvitløk",a:3,u:"fedd"},{n:"Rød chili",a:1,u:"stk"},{n:"Basilikum",a:1,u:"neve"},{n:"Kjøttdeig",a:400,u:"g"},{n:"Sriracha",a:2,u:"ss"},{n:"Soyasaus",a:3,u:"ss"},{n:"Østerssaus",a:2,u:"ss"},{n:"Egg",a:3,u:"stk"},{n:"Ris",a:300,u:"g"},{n:"Honning",a:1,u:"ss"}],
+   fremgang:"Kok ris; Stek sopp i tørr panne til væsken fordamper; Tilsett olje og gulrot i strimlar; Ha i ris og stek på høy varme; Smak til med soyasaus, honning og sriracha; Vend inn spinat; Steik egg og legg på toppen",link:"https://gladkokken.no/oppskrifter/pad-kra-pao-rask-og-deilig-thailandsk-hverdagsmat"},
+  {id:"R105",navn:"Nachos",protein:"Kjøtt",kategori:"Form",tid:30,
+   ingredienser:[{n:"Nachos",a:200,u:"g"},{n:"Avokado",a:1,u:"stk"},{n:"Salat",a:1,u:"pk"},{n:"Tomat",a:2,u:"stk"},{n:"Rødløk",a:1,u:"stk"},{n:"Rømme",a:2,u:"dl"},{n:"Mais",a:1,u:"boks"},{n:"Revet ost",a:150,u:"g"},{n:"Bønner",a:1,u:"boks"},{n:"Tacosaus",a:1,u:"pk"},{n:"Tacokrydder",a:1,u:"pk"},{n:"Kjøttdeig",a:400,u:"g"}],
+   fremgang:"Steik kjøtt og tilsett tacokrydder; Legg nachos i ildfast form; Strø over kjøtt, lauk, bønner og ost; Steik på 225 °C i ca. 10 min; Server med blader, avokado og tomater"},
+  {id:"R106",navn:"Biff og pasta",protein:"Kjøtt",kategori:"Tradisjonell",tid:30,
+   ingredienser:[{n:"Sjampinjong",a:200,u:"g"},{n:"Hvitløk",a:2,u:"fedd"},{n:"Rød chili",a:1,u:"stk"},{n:"Tagliatelle",a:300,u:"g"},{n:"Kremfløyte",a:3,u:"dl"},{n:"Biff",a:400,u:"g"}],
+   fremgang:"Steik biff; Hakk sopp, chilli og kvitlauk; Kok tagliatelle; Steik chilli, sopp og kvitlauk og tilsett matfløyte"},
+  {id:"R107",navn:"Lasagnegryte",protein:"Kjøtt",kategori:"Gryte",tid:45,
+   ingredienser:[{n:"Kjøttdeig",a:400,u:"g"},{n:"Løk",a:1,u:"stk"},{n:"Hvitløk",a:2,u:"fedd"},{n:"Hakkede tomater",a:1,u:"boks"},{n:"Tomatpuré",a:2,u:"ss"},{n:"Kjøttkraft",a:3,u:"dl"},{n:"Oregano",a:1,u:"ts"},{n:"Lasagneplater",a:150,u:"g"},{n:"Kremfløyte",a:2,u:"dl"},{n:"Revet ost",a:150,u:"g"}],
+   fremgang:"Steik lauk og hvitløk; Brun kjøttdeig; Rør inn tomatpuré, hakkede tomater, kraft og krydder; Knekk lasagneplater i bitar og ha i gryta; Småkok til pasta er mør; Rør inn fløyte; Topp med ost",link:"https://gladkokken.no/oppskrifter/broken-lasagna-pasta-hverdagsmat"},
+  {id:"R108",navn:"Kvikk-taco",protein:"Kjøtt",kategori:"Taco",tid:45,
+   ingredienser:[{n:"Kjøttdeig",a:400,u:"g"},{n:"Tacokrydder",a:1,u:"pk"},{n:"Tacolefser",a:1,u:"pk"},{n:"Salat",a:1,u:"pk"},{n:"Tomat",a:2,u:"stk"},{n:"Rødløk",a:1,u:"stk"},{n:"Rømme",a:2,u:"dl"},{n:"Revet ost",a:150,u:"g"},{n:"Guacamole",a:1,u:"pk"}],
+   fremgang:"Steik kjøttdeig og tilsett tacokrydder; Kutt grønnsaker; Server med lefsar og ønskt tilbehør"},
+  {id:"R109",navn:"Helgas dumplings",protein:"Kjøtt",kategori:"Asiatisk",tid:30,
+   ingredienser:[{n:"Ingefær",a:1,u:"ss"},{n:"Lime",a:1,u:"stk"},{n:"Vårløk",a:3,u:"stk"},{n:"Pak choy",a:200,u:"g"},{n:"Honning",a:2,u:"ss"},{n:"Curry paste",a:2,u:"ss"},{n:"Kokosmjølk",a:2,u:"dl"},{n:"Soyasaus",a:3,u:"ss"},{n:"Dumplings",a:400,u:"g"},{n:"Nudler",a:200,u:"g"}],
+   fremgang:"Miks ingefær, lime, honning, curry paste, kokosmjølk og soyasaus i ildfast form; Hakk pak choi og vend i sausen; Ha pak og dumplings i forma og steik på 180 °C i 10–12 min; Kok nudlar; Dryss over vårlauk"},
+  {id:"R303",navn:"Pasta med laks, sopp og spinat",protein:"Fisk",kategori:"Pasta",tid:30,
+   ingredienser:[{n:"Laks",a:500,u:"g"},{n:"Løk",a:1,u:"stk"},{n:"Sjampinjong",a:200,u:"g"},{n:"Hvitløk",a:2,u:"fedd"},{n:"Spinat",a:100,u:"g"},{n:"Kremfløyte",a:3,u:"dl"},{n:"Sitron",a:1,u:"stk"},{n:"Tagliatelle",a:300,u:"g"},{n:"Parmesan",a:50,u:"g"}],
+   fremgang:"Kutt sopp og lauk; Steik laks på 180 °C i 10–15 min; Steik sopp og lauk og kok opp med fløyte; Kok tagliatelle; Ha pastaen i panna saman med spinat; Riv over parmesan",link:"https://sulten.app/recipes/kremet-pasta-med-stekt-laks"},
+  {id:"R110",navn:"Løsets hjortesteik",protein:"Kjøtt",kategori:"Tradisjonell",tid:60,
+   ingredienser:[{n:"Potet",a:500,u:"g"},{n:"Rosenkål",a:200,u:"g"},{n:"Gulrot",a:2,u:"stk"},{n:"Sjampinjong",a:200,u:"g"},{n:"Hjortesteik",a:600,u:"g"},{n:"Kjøttsaus",a:1,u:"pk"}],
+   fremgang:"Ha salt og pepper på hjortesteiken og steik i par timar på 125 °C; Del sopp og gulrøtter i strimlar; Kok potet og rosenkål; Steik sopp; Kok saus; Ta ut kjøttet ved ca. 70 °C",notater:"Kan også serveres med fløytegratinerte poteter"},
+  {id:"R111",navn:"Søtpotetnachos",protein:"Kjøtt",kategori:"Taco",tid:30,
+   ingredienser:[{n:"Søtpotet",a:400,u:"g"},{n:"Rødløk",a:1,u:"stk"},{n:"Sjampinjong",a:150,u:"g"},{n:"Salat",a:1,u:"pk"},{n:"Paprika",a:1,u:"stk"},{n:"Fetaost",a:100,u:"g"},{n:"Rømme",a:2,u:"dl"},{n:"Bønner",a:1,u:"boks"},{n:"Kjøttdeig",a:400,u:"g"},{n:"Nachos",a:150,u:"g"},{n:"Revet ost",a:100,u:"g"},{n:"Tacokrydder",a:1,u:"pk"}],
+   fremgang:"Del søtpotet i skiver og krydre; Steik kjøttdeig, sopp og lauk med tacokrydder; Ha alt på brettet, miks med nachos og topp med ost; Servér med salat og rømme"},
+  {id:"R112",navn:"Søtpotetgryte",protein:"Kjøtt",kategori:"Gryte",tid:30,
+   ingredienser:[{n:"Søtpotet",a:400,u:"g"},{n:"Løk",a:1,u:"stk"},{n:"Hvitløk",a:2,u:"fedd"},{n:"Bønner",a:1,u:"boks"},{n:"Hakkede tomater",a:2,u:"boks"},{n:"Tomatpuré",a:4,u:"ss"},{n:"Kjøttdeig",a:400,u:"g"},{n:"Grønnsakskraft",a:4,u:"dl"},{n:"Ris",a:300,u:"g"},{n:"Rømme",a:2,u:"dl"},{n:"Tacosaus",a:1,u:"pk"},{n:"Nachos",a:100,u:"g"}],
+   fremgang:"Hakk og steik kvitlauk og lauk; Tilsett søtpotet, tacosaus, tomatar og kraft; Kok i ca. 20 min; Steik kjøttdeig med tacokrydder; Tilsett kjøttdeig og bønner; Servér med nachos",link:"https://meny.no/oppskrifter/vegetar/krydret-sotpotetgryte/"},
+  {id:"R304",navn:"Fiskekaker med pita",protein:"Fisk",kategori:"Gresk",tid:15,
+   ingredienser:[{n:"Rødløk",a:1,u:"stk"},{n:"Tomat",a:2,u:"stk"},{n:"Salat",a:1,u:"pk"},{n:"Aioli",a:1,u:"pk"},{n:"Fiskekaker",a:400,u:"g"},{n:"Pita",a:4,u:"stk"}],
+   fremgang:"Steik fiskekaker; Kutt tomat og rødløk; Steik pita og servér"},
+  {id:"R113",navn:"Hjorteburger",protein:"Kjøtt",kategori:"Hamburger",tid:45,
+   ingredienser:[{n:"Salat",a:1,u:"pk"},{n:"Potet",a:400,u:"g"},{n:"Rødløk",a:1,u:"stk"},{n:"Hjortekjøttdeig",a:400,u:"g"},{n:"Bacon",a:100,u:"g"},{n:"Tyttebærsyltetøy",a:1,u:"glass"},{n:"Crème fraîche",a:1,u:"dl"},{n:"Aioli",a:1,u:"pk"},{n:"Cheddar",a:100,u:"g"},{n:"Burgerbrød",a:3,u:"stk"}],
+   fremgang:"Lag burgere med hjortekjøtt og tilsett baconterningar, salt og pepper; Steik potetbåtar; Lag tyttebærsaus med syltetøy og crème fraîche; Steik burgere og legg på cheddar; Servér med aioli og blader"},
+  {id:"R204",navn:"Chicken pasta",protein:"Kylling",kategori:"Pasta",tid:30,
+   ingredienser:[{n:"Løk",a:1,u:"stk"},{n:"Soltørket tomat",a:80,u:"g"},{n:"Sitron",a:1,u:"stk"},{n:"Hvitløk",a:4,u:"fedd"},{n:"Spinat",a:100,u:"g"},{n:"Kremfløyte",a:2,u:"dl"},{n:"Kyllingkraft",a:2,u:"dl"},{n:"Tomatpuré",a:2,u:"ss"},{n:"Kyllingfillet",a:500,u:"g"},{n:"Pasta",a:300,u:"g"},{n:"Parmesan",a:50,u:"g"}],
+   fremgang:"Steik kylling lett og krydre; Ta av kyllingen og steik kvitlauk, soltørka tomatar og lauk; Bland inn tomatpuré; Hell over kraft og kremfløyte; Tilsett kylling og kok i 10 min; Kok pasta; Tilsett spinat og parmesan"},
+  {id:"R114",navn:"Middagsform med egg",protein:"Kjøtt",kategori:"Form",tid:30,
+   ingredienser:[{n:"Søtpotet",a:300,u:"g"},{n:"Potet",a:200,u:"g"},{n:"Løk",a:1,u:"stk"},{n:"Chorizopølse",a:200,u:"g"},{n:"Egg",a:4,u:"stk"},{n:"Vårløk",a:3,u:"stk"},{n:"Bladpersille",a:1,u:"neve"}],
+   fremgang:"Skrell poteter, kutt i terningar og legg i ildfast form; Kutt lauk og chorizo og ha i form; Krydre og steik på 220 °C i 20–25 min; Klekk egg oppi og steik vidare i 5–10 min; Dryss over vårlauk",notater:"Kan serveres med litt sriracha",link:"https://www.matprat.no/oppskrifter/rask/enkel-middagsform-med-egg/"},
+  {id:"R205",navn:"Mammas kyllinggryte",protein:"Kylling",kategori:"Gryte",tid:30,
+   ingredienser:[{n:"Kyllingfillet",a:500,u:"g"},{n:"Paprika",a:1,u:"stk"},{n:"Løk",a:1,u:"stk"},{n:"Sjampinjong",a:150,u:"g"},{n:"Kremfløyte",a:3,u:"dl"},{n:"Kyllingkrydder",a:2,u:"ts"},{n:"Ris",a:300,u:"g"}],
+   fremgang:"Steik kylling i bitar; Tilsett grønnsaker og fres; Hell i fløyte og smak til med krydder; La småkoke og servér med ris"},
+  {id:"R206",navn:"Kyllingfillet med blomkålrisotto",protein:"Kylling",kategori:"Tradisjonell",tid:45,
+   ingredienser:[{n:"Blomkål",a:500,u:"g"},{n:"Løk",a:1,u:"stk"},{n:"Hvitløk",a:2,u:"fedd"},{n:"Hønsebuljong",a:10,u:"dl"},{n:"Risottoris",a:300,u:"g"},{n:"Smør",a:2,u:"ss"},{n:"Eplejuice",a:1,u:"dl"},{n:"Valnøtter",a:50,u:"g"},{n:"Parmesan",a:50,u:"g"},{n:"Kyllingfillet",a:500,u:"g"}],
+   fremgang:"Finhakk blomkål, lauk og kvitlauk; Smelt smør og fres kvitlauk og lauk; Tilsett ris og eplejuice; Tilsett litt og litt buljong; Rør inn blomkål og kok i ca. 20 min; Ha i valnøtter og parmesan; Steik kyllingfillet"},
+  {id:"R207",navn:"Club sandwich",protein:"Kylling",kategori:"Sandwich",tid:30,
+   ingredienser:[{n:"Kyllingfillet",a:500,u:"g"},{n:"Salat",a:1,u:"pk"},{n:"Løk",a:1,u:"stk"},{n:"Mais",a:1,u:"boks"},{n:"Tomat",a:2,u:"stk"},{n:"Loff",a:1,u:"stk"},{n:"Aioli",a:1,u:"pk"},{n:"Revet ost",a:100,u:"g"},{n:"Bacon",a:100,u:"g"}],
+   fremgang:"Steik kyllingfilleter og bacon; Kutt salat, lauk og tomat; Rist loffskiver og servér med mais og ost"},
+  {id:"R305",navn:"Laksetaco",protein:"Fisk",kategori:"Taco",tid:30,
+   ingredienser:[{n:"Tacolefser",a:1,u:"pk"},{n:"Laks",a:500,u:"g"},{n:"Wokgrønnsaker",a:300,u:"g"},{n:"Nudler",a:200,u:"g"},{n:"Chop suey saus",a:1,u:"pk"},{n:"Rømme",a:2,u:"dl"}],
+   fremgang:"Kutt laks i bitar og steik den; Steik wok; Kok nudlar; Bland alt og varm opp med chop sui; Servér i tacolefsar"},
+  {id:"R306",navn:"Kokos- og currypanne med torsk",protein:"Fisk",kategori:"Gryte",tid:30,
+   ingredienser:[{n:"Purre",a:1,u:"stk"},{n:"Paprika",a:1,u:"stk"},{n:"Rød chili",a:1,u:"stk"},{n:"Curry paste",a:2,u:"ss"},{n:"Kokosmjølk",a:4,u:"dl"},{n:"Lime",a:1,u:"stk"},{n:"Koriander",a:1,u:"neve"},{n:"Torsk",a:500,u:"g"},{n:"Ris",a:300,u:"g"}],
+   fremgang:"Skjær torsk, purre og paprika og finhakk chilli; Kok ris; Fres purre og paprika; Tilsett curry paste; Tilsett kokosmjølk og kok opp; Legg i fisk og lime; La trekke i 5 min; Dryss over koriander",link:"https://www.matprat.no/oppskrifter/sunn/kokos--og-currypanne-med-torsk/"},
+  {id:"R115",navn:"Hamburger",protein:"Kjøtt",kategori:"Hamburger",tid:30,
+   ingredienser:[{n:"Salat",a:1,u:"pk"},{n:"Tomat",a:2,u:"stk"},{n:"Sylteagurk",a:1,u:"glass"},{n:"Rødløk",a:1,u:"stk"},{n:"Burgerbrød",a:3,u:"stk"},{n:"Burgerdressing",a:1,u:"pk"},{n:"Hamburgerkjøtt",a:400,u:"g"},{n:"Pommes frites",a:400,u:"g"},{n:"Ketchup",a:1,u:"pk"}],
+   fremgang:"Steik pommes frites; Hakk grønnsaker; Steik hamburger; Servér med brød"},
+  {id:"R208",navn:"Kyllingwok",protein:"Kylling",kategori:"Wok",tid:30,
+   ingredienser:[{n:"Paprika",a:1,u:"stk"},{n:"Sjampinjong",a:150,u:"g"},{n:"Brokkoli",a:200,u:"g"},{n:"Kyllingfillet",a:500,u:"g"},{n:"Woksaus",a:1,u:"pk"},{n:"Nudler",a:300,u:"g"}],
+   fremgang:"Hakk grønnsaker; Steik kylling; Wok grønnsaker; Kok nudlar; Miks alt og varm opp"},
+  {id:"R116",navn:"Salsicciapasta",protein:"Kjøtt",kategori:"Pasta",tid:30,
+   ingredienser:[{n:"Rigatoni",a:300,u:"g"},{n:"Salsiccia",a:400,u:"g"},{n:"Hvitløk",a:3,u:"fedd"},{n:"Tomatpuré",a:2,u:"ss"},{n:"Kremfløyte",a:3,u:"dl"},{n:"Basilikum",a:1,u:"neve"},{n:"Parmesan",a:50,u:"g"}],
+   fremgang:"Press ut kjøttet frå salsiccia og steik i panne med olje; Tilsett kvitlauk, tomatpuré og kremfløyte; Kok opp og la småkoke; Kok pasta al dente; Bland pasta i sausen; Vend inn basilikum; Topp med olivenolje og parmesan",link:"https://www.godt.no/oppskrifter/middag/13163/salsiccia-pasta"},
+  {id:"R209",navn:"Bao bun med soyakylling",protein:"Kylling",kategori:"Asiatisk",tid:45,
+   ingredienser:[{n:"Hvitløk",a:3,u:"fedd"},{n:"Ingefær",a:1,u:"ss"},{n:"Mango",a:1,u:"stk"},{n:"Agurk",a:1,u:"stk"},{n:"Paprika",a:1,u:"stk"},{n:"Salat",a:1,u:"pk"},{n:"Koriander",a:1,u:"neve"},{n:"Bao buns",a:6,u:"stk"},{n:"Soyasaus",a:3,u:"ss"},{n:"Kyllingfillet",a:500,u:"g"}],
+   fremgang:"Skjær kylling i strimlar og steik; Kutt grønnsaker; Finhakk kvitlauk og ingefær og fres i olje; Tilsett brunt sukker, soyasaus og buljong og kok til sausen tjuknar; Steik kylling i sausen; Damp bao buns og servér"},
+  {id:"R117",navn:"Lasagne",protein:"Kjøtt",kategori:"Form",tid:45,
+   ingredienser:[{n:"Toro lasagnepakke",a:1,u:"pk"},{n:"Kjøttdeig",a:400,u:"g"},{n:"Revet ost",a:150,u:"g"},{n:"Kvitlauksbaguett",a:1,u:"stk"}],
+   fremgang:"Varm ovn til 225 °C; Brun kjøttdeig og tilsett vann og sausmiks; Legg kjøttsaus og lasagneplater lagvis i form; Topp med ost; Steik i 30–40 min"},
+  {id:"R118",navn:"Pitapizza",protein:"Kjøtt",kategori:"Pizza",tid:20,
+   ingredienser:[{n:"Rød chili",a:1,u:"stk"},{n:"Hvitløk",a:2,u:"fedd"},{n:"Rødløk",a:1,u:"stk"},{n:"Sjampinjong",a:150,u:"g"},{n:"Soltørket tomat",a:80,u:"g"},{n:"Artisjokk",a:1,u:"boks"},{n:"Crème fraîche",a:2,u:"dl"},{n:"Pita",a:4,u:"stk"},{n:"Salami/Siliana",a:100,u:"g"}],
+   fremgang:"Hakk kvitlauk og chilli og bland med crème fraîche, basilikum, salt og pepper; Smør utover pita; Ha på ønskt innhald; Steik på 220 °C i 5 min"},
+  {id:"R210",navn:"Solveigs kyllinggryte",protein:"Kylling",kategori:"Gryte",tid:45,
+   ingredienser:[{n:"Kyllingfillet",a:500,u:"g"},{n:"Kyllingbuljong",a:2,u:"dl"},{n:"Sambal oelek",a:1,u:"ss"},{n:"Soyasaus",a:3,u:"ss"},{n:"Mango chutney",a:3,u:"ss"},{n:"Purreløk",a:1,u:"stk"},{n:"Paprika",a:1,u:"stk"},{n:"Mango",a:1,u:"stk"},{n:"Crème fraîche",a:1,u:"dl"},{n:"Kremfløyte",a:1,u:"dl"},{n:"Maizena",a:1,u:"ss"},{n:"Ris",a:300,u:"g"}],
+   fremgang:"Steik kyllingbitar i olje; Tilsett buljong, sambal, soyasaus og mango chutney og kok opp; Skjær grønnsaker og mango; Tilsett crème fraîche, kremfløyte, frukt og grønnsaker; Spe med maizena-vatn til sausen tjuknar; Server med ris"},
+  {id:"R307",navn:"Laks med sesamcrust og quinoa",protein:"Fisk",kategori:"Tradisjonell",tid:45,
+   ingredienser:[{n:"Laks",a:500,u:"g"},{n:"Sesamfrø",a:4,u:"ss"},{n:"Hvitløkspulver",a:1,u:"ts"},{n:"Soyasaus",a:4,u:"ss"},{n:"Østerssaus",a:2,u:"ss"},{n:"Lime",a:1,u:"stk"},{n:"Honning",a:2,u:"ss"},{n:"Chiliflak",a:1,u:"ts"},{n:"Quinoa",a:300,u:"g"},{n:"Kyllingbuljong",a:5,u:"dl"},{n:"Brokkoli",a:200,u:"g"},{n:"Gulrot",a:2,u:"stk"}],
+   fremgang:"Skyll quinoa og kok med vann og buljong i ca. 15 min; Kutt og kok grønnsaker lett; Vend laks i sesamfrø på éi side; Stek 3–4 min på sesamsiden; Kok opp soyasaus, østerssaus, lime, honning og chiliflak; Legg laksen tilbake og vend i sausen"},
+  {id:"R308",navn:"Tom Kha suppe med scampi",protein:"Fisk",kategori:"Suppe",tid:15,
+   ingredienser:[{n:"Tom Kha suppe",a:1,u:"pk"},{n:"Scampi",a:300,u:"g"},{n:"Vårløk",a:3,u:"stk"},{n:"Brød",a:1,u:"stk"}],
+   fremgang:"Kok suppe og hiv oppi scampi og vårlauk; Servér med brød"},
+  {id:"R211",navn:"Thai suppe med kylling",protein:"Kylling",kategori:"Suppe",tid:15,
+   ingredienser:[{n:"Thai suppe",a:1,u:"pk"},{n:"Kyllingfillet",a:300,u:"g"},{n:"Naanbrød",a:3,u:"stk"}],
+   fremgang:"Kok thai suppe og hiv oppi kyllingbitar; Servér med naan eller anna brød"},
+  {id:"R309",navn:"Fiskesuppe med fiskekake",protein:"Fisk",kategori:"Suppe",tid:15,
+   ingredienser:[{n:"Fiskesuppe",a:1,u:"pk"},{n:"Fiskekaker",a:400,u:"g"},{n:"Brød",a:1,u:"stk"}],
+   fremgang:"Kok fiskesuppe og hiv oppi terningar av fiskekaker; Servér med brød"},
+  {id:"R212",navn:"Bali kyllinggryte",protein:"Kylling",kategori:"Gryte",tid:30,
+   ingredienser:[{n:"Toro Bali Kyllinggryte",a:1,u:"pk"},{n:"Kyllingfillet",a:500,u:"g"},{n:"Kremfløyte",a:2,u:"dl"},{n:"Ris",a:300,u:"g"}],
+   fremgang:"Kutt kylling i bitar og brun i panne; Tilsett vatn og rør inn Toro-posen; Kok opp og tilsett fløyte; Småkok 5–10 min; Servér med ris"},
+  {id:"R119",navn:"Tacogratteng",protein:"Kjøtt",kategori:"Taco",tid:45,
+   ingredienser:[{n:"Kjøttdeig",a:400,u:"g"},{n:"Tacokrydder",a:1,u:"pk"},{n:"Løk",a:1,u:"stk"},{n:"Paprika",a:1,u:"stk"},{n:"Mais",a:1,u:"boks"},{n:"Hakkede tomater",a:1,u:"boks"},{n:"Crème fraîche",a:2,u:"dl"},{n:"Revet ost",a:150,u:"g"}],
+   fremgang:"Steik kjøttdeig og løk; Tilsett tacokrydder, tomatar, paprika og mais; Rør inn crème fraîche; Ha alt i ildfast form; Dryss over ost; Steik på 225 °C til osten er gyllen"},
+  {id:"R213",navn:"Indisk kyllingsuppe m. eple og ingefær",protein:"Kylling",kategori:"Suppe",tid:45,
+   ingredienser:[{n:"Løk",a:1,u:"stk"},{n:"Hvitløk",a:2,u:"fedd"},{n:"Rød chili",a:1,u:"stk"},{n:"Ingefær",a:1,u:"ss"},{n:"Eple",a:1,u:"stk"},{n:"Karri",a:2,u:"ts"},{n:"Kyllingkraft",a:9,u:"dl"},{n:"Kokosmjølk",a:2,u:"dl"},{n:"Kyllingfillet",a:500,u:"g"},{n:"Naanbrød",a:3,u:"stk"}],
+   fremgang:"Finhakk løk, kvitløk, chili, ingefær og eple; Fres i kjele til løken er blank; Rør inn karri og la surre i 1 min; Hell over kyllingkraft og kok i 10 min; Tilsett kylling og kokosmjølk; Småkok til kyllingen er gjennomkokt; Server med varme naanbrød"},
+  {id:"R120",navn:"Pasta med avokadodressing og bacon",protein:"Kjøtt",kategori:"Pasta",tid:30,
+   ingredienser:[{n:"Avokado",a:2,u:"stk"},{n:"Yoghurt naturell",a:1,u:"dl"},{n:"Sitron",a:1,u:"stk"},{n:"Pasta",a:300,u:"g"},{n:"Bacon",a:150,u:"g"},{n:"Parmesan",a:50,u:"g"}],
+   fremgang:"Kok pasta; Steik bacon til det er sprøtt; Kjør avokado, yoghurt, sitronsaft og hvitløkspulver glatt med stavmikser; Bland dressingen inn i ferdigkokt pasta; Server toppet med bacon og parmesan"},
+  {id:"R121",navn:"Salsiccia-pasta",protein:"Kjøtt",kategori:"Pasta",tid:30,
+   ingredienser:[{n:"Salsiccia",a:400,u:"g"},{n:"Pasta",a:300,u:"g"},{n:"Hvitløk",a:3,u:"fedd"},{n:"Tomatpuré",a:2,u:"ss"},{n:"Sitron",a:1,u:"stk"},{n:"Kremfløyte",a:3,u:"dl"},{n:"Basilikum",a:1,u:"neve"},{n:"Parmesan",a:50,u:"g"}],
+   fremgang:"Press kjøtt ut av skinnet og steik i panne; Tilsett kvitløk; Rør inn tomatpuré, sitronsaft og fløyte og la simre; Kok pasta al dente; Bland pasta i saus; Vend inn basilikum; Topp med olivenolje og parmesan"},
+];
   {id:"R200",navn:"Sundagskylling",protein:"Kylling",kategori:"Tradisjonell",tid:45,ingredienser:["Kyllinglår","Potet","Søtpotet","Gulrot","Raud lauk","Salt, pepper, aromat, kyllingkrydder"],fremgang:"Sett steikeomn på 200 °C varmluft; Hakk opp grønnsaker i medium bitar og miks med olje og krydder; Steik ca. 45 min; Legg kylling i form, massér inn krydder og olje; Steik ca. 30 min",notater:"Kan også lages med kalkun"},
   {id:"R101",navn:"Tortillini og pølse",protein:"Kjøtt",kategori:"Tradisjonell",tid:20,ingredienser:["Pølse","Blader","Tortillini","Salatost","Tomat","Aioli","Rundstykker"],fremgang:"Steik grønnsaker; Hakk grønnsaker og miks; Steik pølser; Kok tortillini; Servér med aioli"},
   {id:"R300",navn:"Laks med eksotiske frukter",protein:"Fisk",kategori:"Tradisjonell",tid:30,ingredienser:["Laks","Avokado","Mango","Lime","Cherrytomater","Raud lauk","Vårlauk","Paprika","Sweet Chilli","Ris"],fremgang:"Kutt grønnsaker i ein bolle og press over lime; Salt og pepper på laks og steik på 200 °C i 12–15 min; Kok ris",link:"https://trinesmatblogg.no/recipe/laks-med-mango-og-avokadosalat/"},
@@ -495,8 +635,32 @@ const STORE_CATS = [
   { name:"🧊 Fryst", kw:["dumplings","ferdige dumplings","wokblanding","pommes frites"] },
 ];
 
+function fmtIngr(i) {
+  // Format: "400 g Kjøttdeig" or "2 stk Rødløk" etc.
+  if (!i.a) return i.n;
+  return `${i.a} ${i.u} ${i.n}`;
+}
+
+function mergeIngredients(items) {
+  const map = new Map();
+  items.forEach(item => {
+    if (item.manual) { map.set('__manual__' + item.id, item); return; }
+    const key = item.n.toLowerCase().trim();
+    if (map.has(key)) {
+      const existing = map.get(key);
+      if (existing.u === item.u && typeof existing.a === 'number') {
+        existing.a += item.a;
+        existing.recipeIds = [...(existing.recipeIds || [existing.recipeId]), item.recipeId];
+      }
+    } else {
+      map.set(key, { ...item, recipeIds: [item.recipeId] });
+    }
+  });
+  return Array.from(map.values());
+}
+
 function categorizIngr(ing) {
-  const l = ing.toLowerCase();
+  const l = (ing.n || ing).toLowerCase();
   for (const c of STORE_CATS) {
     if (c.kw.some(k => l.includes(k))) return c.name;
   }
@@ -637,13 +801,16 @@ function toggleSelect(id) {
     valgte.add(id);
     const r = retter.find(x => x.id === id);
     r.ingredienser.forEach(ingr => {
-      const exists = shopItems.some(i => !i.manual && i.text.toLowerCase() === ingr.toLowerCase());
+      const key = ingr.n.toLowerCase().trim();
+      const exists = shopItems.some(i => !i.manual && i.n && i.n.toLowerCase().trim() === key && i.recipeId === id);
       if (!exists) {
-        shopItems.push({ id: `ri_${id}_${Date.now()}_${Math.random()}`, text: ingr, cat: categorizIngr(ingr), checked: false, manual: false, recipeId: id });
-      } else {
-        // If ingredient already exists from another recipe, reset checked
-        const existing = shopItems.find(i => i.text.toLowerCase() === ingr.toLowerCase());
-        if (existing) existing.checked = false;
+        shopItems.push({
+          id: `ri_${id}_${Date.now()}_${Math.random()}`,
+          n: ingr.n, a: ingr.a, u: ingr.u,
+          text: fmtIngr(ingr),
+          cat: categorizIngr(ingr),
+          checked: false, manual: false, recipeId: id
+        });
       }
     });
   }
@@ -679,7 +846,7 @@ function syncShopBadge() {
 function openRecipe(id) {
   const r = retter.find(x => x.id === id);
   const c = colors[r.protein];
-  const ingr = r.ingredienser.map(i => `<li><span class="dot dot-${r.protein}"></span>${i}</li>`).join("");
+  const ingr = r.ingredienser.map(i => `<li><span class="dot dot-${r.protein}"></span>${fmtIngr(i)}</li>`).join("");
   const steg = r.fremgang ? r.fremgang.split(";").map(s => s.trim()).filter(Boolean) : [];
   const stegHTML = steg.map((s, i) => `<li class="step-item"><span class="step-num num-${r.protein}">${i+1}</span><span>${s}</span></li>`).join("");
   const isAdded = valgte.has(id);
@@ -732,8 +899,8 @@ document.getElementById("recipeOverlay").addEventListener("click", e => {
 // SHOPPING LIST PAGE
 // ══════════════════════════════════════════════════
 function renderShopPage() {
-  const unchecked = shopItems.filter(i => !i.checked);
-  const checked   = shopItems.filter(i => i.checked);
+  const unchecked = mergeIngredients(shopItems.filter(i => !i.checked));
+  const checked   = mergeIngredients(shopItems.filter(i => i.checked));
   const selectedRetter = retter.filter(r => valgte.has(r.id));
 
   document.getElementById("shopMeta").textContent =
@@ -787,10 +954,11 @@ function renderShopPage() {
 }
 
 function renderSlItem(item) {
+  const displayText = item.manual ? item.text : fmtIngr(item);
   return `
     <li class="sl-item${item.checked ? " checked" : ""}" data-slid="${item.id}">
       <div class="sl-checkbox">${item.checked ? "✓" : ""}</div>
-      <span class="sl-text">${item.text}</span>
+      <span class="sl-text">${displayText}</span>
       <span class="sl-delete" data-del="${item.id}">✕</span>
     </li>`;
 }
@@ -800,14 +968,32 @@ function attachSlEvents() {
     el.addEventListener("click", e => {
       if (e.target.closest(".sl-delete")) return;
       const id = el.dataset.slid;
+      // Find in original shopItems (merged items may have combined ids)
       const item = shopItems.find(i => i.id === id);
-      if (item) { item.checked = !item.checked; renderShopPage(); }
+      if (item) {
+        item.checked = !item.checked;
+      } else {
+        // Merged item – toggle all originals with same name
+        const mergedName = el.querySelector(".sl-text").textContent.trim();
+        shopItems.forEach(i => {
+          if (fmtIngr(i) === mergedName) i.checked = !i.checked;
+        });
+      }
+      renderShopPage();
     });
   });
   document.querySelectorAll(".sl-delete").forEach(btn => {
     btn.addEventListener("click", e => {
       e.stopPropagation();
-      shopItems = shopItems.filter(i => i.id !== btn.dataset.del);
+      const id = btn.dataset.del;
+      const item = shopItems.find(i => i.id === id);
+      if (item) {
+        shopItems = shopItems.filter(i => i.id !== id);
+      } else {
+        // Merged – remove all with same name
+        const mergedName = btn.closest(".sl-item").querySelector(".sl-text").textContent.trim();
+        shopItems = shopItems.filter(i => fmtIngr(i) !== mergedName);
+      }
       renderShopPage();
     });
   });
